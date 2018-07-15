@@ -1,4 +1,4 @@
-# Aialoguesmith
+# Dialoguesmith
 A simple unity engine dialogue editor
 
 # Installation
