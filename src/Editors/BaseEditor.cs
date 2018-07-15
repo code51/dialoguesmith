@@ -11,6 +11,7 @@ namespace DialogueSmith.Editors
 {
     public abstract class BaseEditor : EditorWindow
     {
+        public const string DIALOGUESMITH_PATH = "Assets/dialoguesmith";
         public const string SETTING_DIALOGUES_PATH = "dialogues_path";
         public const string SETTING_DIALOGUES_META = "dialogues_meta.json";
 

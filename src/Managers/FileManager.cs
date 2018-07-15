@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using DialogueSmith.Editors;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,7 +14,7 @@ namespace DialogueSmith.Managers
             if (textureCache.ContainsKey(path))
                 return textureCache[path];
 
-            var texture = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Talky/" + path);
+            var texture = AssetDatabase.LoadAssetAtPath<Texture>(NodeEditor.DIALOGUESMITH_PATH + "/assets/" + path);
 
             textureCache[path] = texture;
 

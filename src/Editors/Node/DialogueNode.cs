@@ -111,15 +111,15 @@ namespace DialogueSmith.Editors.Node
             options = new List<KeyValuePair<Rect, OptionEntity>>();
 
             if (!NodeEditor.Instance.CurrentTree.IsConnected(entity))
-                GUI.DrawTexture(startRect = new Rect(4f, 3f, 10f, 10f), FileManager.Instance.LoadTexture("assets/redlight.png"));
+                GUI.DrawTexture(startRect = new Rect(4f, 3f, 10f, 10f), FileManager.Instance.LoadTexture("redlight.png"));
             else
-                GUI.DrawTexture(startRect = new Rect(4f, 3f, 10f, 10f), FileManager.Instance.LoadTexture("assets/bluelight.png"));
+                GUI.DrawTexture(startRect = new Rect(4f, 3f, 10f, 10f), FileManager.Instance.LoadTexture("bluelight.png"));
 
             if (entity.options.Count == 0) {
                 if (!NodeEditor.Instance.CurrentTree.IsExtended(entity))
-                    GUI.DrawTexture(endRect = new Rect(200f, 3f, 10f, 10f), FileManager.Instance.LoadTexture("assets/greenlight.png"));
+                    GUI.DrawTexture(endRect = new Rect(200f, 3f, 10f, 10f), FileManager.Instance.LoadTexture("greenlight.png"));
                 else
-                    GUI.DrawTexture(endRect = new Rect(200f, 3f, 10f, 10f), FileManager.Instance.LoadTexture("assets/bluelight.png"));
+                    GUI.DrawTexture(endRect = new Rect(200f, 3f, 10f, 10f), FileManager.Instance.LoadTexture("bluelight.png"));
             }
 
             //entity.id = base.AddTextInput("Id", entity.id);
@@ -141,8 +141,8 @@ namespace DialogueSmith.Editors.Node
                 NodeEditor.Instance.VariableUpdates();
 
             if (entity.texts.Count > 1) {
-                GUI.DrawTexture(rects["text_left"] = new Rect(60f, 60f, 10f, 10f), FileManager.Instance.LoadTexture("assets/left_arrow.png"));
-                GUI.DrawTexture(rects["text_right"] = new Rect(75f, 60f, 10f, 10f), FileManager.Instance.LoadTexture("assets/right_arrow.png"));
+                GUI.DrawTexture(rects["text_left"] = new Rect(60f, 60f, 10f, 10f), FileManager.Instance.LoadTexture("left_arrow.png"));
+                GUI.DrawTexture(rects["text_right"] = new Rect(75f, 60f, 10f, 10f), FileManager.Instance.LoadTexture("right_arrow.png"));
             }
 
             int i = 1;
@@ -159,9 +159,9 @@ namespace DialogueSmith.Editors.Node
                 option.id = entity.id + "." + option.id.Split('.')[1];
 
                 if (!NodeEditor.Instance.CurrentTree.IsOptionExtended(option))
-                    GUI.DrawTexture(rect, FileManager.Instance.LoadTexture("assets/greenlight.png"));
+                    GUI.DrawTexture(rect, FileManager.Instance.LoadTexture("greenlight.png"));
                 else
-                    GUI.DrawTexture(rect, FileManager.Instance.LoadTexture("assets/bluelight.png"));
+                    GUI.DrawTexture(rect, FileManager.Instance.LoadTexture("bluelight.png"));
 
                 string optionOriginalText = option.text ?? "";
 
