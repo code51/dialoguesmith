@@ -7,44 +7,25 @@ namespace DialogueSmith.Runtime
 {
     public class DialogueRuntime
     {
-        public bool IsRunning { get { return currentDialogue != null; } }
+        public bool IsRunning => currentDialogue != null;
+        public DialogueTreeEntity Tree => dialogueTree;
 
-        private DialogueTreeEntity dialogueTree;
-        private Dictionary<string, string> variables;
-        private Random random;
-        private Dictionary<string, List<Action>> dialogueTreeListeners;
-        private List<Action<CurrentDialogue>> dialogueInitializingListeners;
-        private List<Action<CurrentDialogue>> dialogueInitializedListeners;
-        private List<Action<CurrentDialogue>> dialogueContinuedListeners;
-        private Dictionary<string, List<Action<CurrentDialogue, OptionSelection>>> dialogueOptionSelectionListeners;
-        private Dictionary<string, List<Action<CurrentDialogue, OptionSelection>>> knownOptionSelectionListeners;
-        private List<Action<CurrentDialogue, OptionSelection>> generalOptionSelectionListeners;
-        private Dictionary<string, Dictionary<string, List<Action<CurrentDialogue>>>> dialogueListeners;
-        private CurrentDialogue currentDialogue;
+        protected DialogueTreeEntity dialogueTree;
+        protected Dictionary<string, string> variables;
+        protected Random random;
+        protected CurrentDialogue currentDialogue;
+        protected ListenerRegistry listenerRegistry;
 
-        public DialogueRuntime(DialogueTreeEntity dialogueTree, 
+        public DialogueRuntime(DialogueTreeEntity dialogueTree,
             Dictionary<string, string> variables,
-            Random random, 
-            Dictionary<string, List<Action>> dialogueTreeListeners,
-            List<Action<CurrentDialogue>> dialogueInitializingListeners,
-            List<Action<CurrentDialogue>> dialogueInitializedListeners,
-            List<Action<CurrentDialogue>> dialogueContinuedListeners,
-            Dictionary<string, List<Action<CurrentDialogue, OptionSelection>>> dialogueOptionSelectionListeners,
-            Dictionary<string, List<Action<CurrentDialogue, OptionSelection>>> knownOptionSelectionListeners,
-            List<Action<CurrentDialogue, OptionSelection>> generalOptionSelectionListeners,
-            Dictionary<string, Dictionary<string, List<Action<CurrentDialogue>>>> dialogueListeners)
+            Random random,
+            ListenerRegistry listenerRegistry
+            )
         {
             this.dialogueTree = dialogueTree;
             this.variables = variables;
             this.random = random;
-            this.dialogueTreeListeners = dialogueTreeListeners;
-            this.dialogueInitializingListeners = dialogueInitializingListeners;
-            this.dialogueInitializedListeners = dialogueInitializedListeners;
-            this.dialogueContinuedListeners = dialogueContinuedListeners;
-            this.dialogueOptionSelectionListeners = dialogueOptionSelectionListeners;
-            this.knownOptionSelectionListeners = knownOptionSelectionListeners;
-            this.generalOptionSelectionListeners = generalOptionSelectionListeners;
-            this.dialogueListeners = dialogueListeners;
+            this.listenerRegistry = listenerRegistry;
             this.InitializeTree();
         }
 
@@ -52,22 +33,55 @@ namespace DialogueSmith.Runtime
         {
             InitializeDialogue(dialogueTree.GetDialogue(dialogueTree.initial_dialogue_id));
 
-            dialogueTreeListeners["on_tree_begin"].ForEach(action => {
-                action();
+            listenerRegistry.DialogueTreeListeners["on_tree_begin"].ForEach(action => {
+                action(this);
             });
         }
 
-        public DialogueRuntime Next()
+        protected void InitializeDialogue(DialogueEntity dialogue)
+        {
+            CurrentDialogue currentDialogue = new CurrentDialogue(dialogueTree, dialogue, dialogue.texts[random.Next(0, dialogue.texts.Count)], variables);
+
+            listenerRegistry.DialogueGeneralListeners["on_initializing"].ForEach(action => {
+                action(currentDialogue);
+            });
+
+            if (listenerRegistry.DialogueSpecificListeners["on_initializing"].ContainsKey(dialogue.id)) {
+                listenerRegistry.DialogueSpecificListeners["on_initializing"][dialogue.id].ForEach(action => {
+                    action(currentDialogue);
+                });
+            }
+
+            this.currentDialogue = currentDialogue;
+
+            listenerRegistry.DialogueGeneralListeners["on_initialized"].ForEach(action => {
+                action(currentDialogue);
+            });
+
+            if (listenerRegistry.DialogueSpecificListeners["on_initialized"].ContainsKey(dialogue.id)) {
+                listenerRegistry.DialogueSpecificListeners["on_initialized"][dialogue.id].ForEach(action => {
+                    action(currentDialogue);
+                });
+            }
+
+            return;
+        }
+
+        /// <summary>
+        /// Continue the dialogue. Only for an extended type of dialogue.
+        /// </summary>
+        /// <returns></returns>
+        public DialogueRuntime Continue()
         {
             if (currentDialogue.Selections.Count > 0)
                 throw new InvalidChoiceException();
 
-            dialogueContinuedListeners.ForEach(action => {
+            listenerRegistry.DialogueGeneralListeners["on_continued"].ForEach(action => {
                 action(currentDialogue);
             });
 
-            if (dialogueListeners["on_continued"].ContainsKey(currentDialogue.Id))
-                dialogueListeners["on_continued"][currentDialogue.Id].ForEach(action => {
+            if (listenerRegistry.DialogueSpecificListeners["on_continued"].ContainsKey(currentDialogue.Id))
+                listenerRegistry.DialogueSpecificListeners["on_continued"][currentDialogue.Id].ForEach(action => {
                     action(currentDialogue);
                 });
 
@@ -80,61 +94,26 @@ namespace DialogueSmith.Runtime
             return this;
         }
 
-        protected DialogueRuntime End()
+        /// <summary>
+        /// Continue with a selection
+        /// </summary>
+        /// <param name="selection"></param>
+        /// <returns></returns>
+        public DialogueRuntime Continue(OptionSelection selection)
         {
-            currentDialogue = null;
-
-            dialogueTreeListeners["on_tree_finished"].ForEach(action => {
-                action();
-            });
-
-            return null;
-        }
-
-        protected void InitializeDialogue(DialogueEntity dialogue)
-        {
-            CurrentDialogue currentDialogue = new CurrentDialogue(dialogueTree, dialogue, dialogue.texts[random.Next(0, dialogue.texts.Count)], variables);
-
-            dialogueInitializingListeners.ForEach(action => {
-                action(currentDialogue);
-            });
-
-            if (dialogueListeners["on_initializing"].ContainsKey(dialogue.id)) {
-                dialogueListeners["on_initializing"][dialogue.id].ForEach(action => {
-                    action(currentDialogue);
-                });
-            }
-
-            this.currentDialogue = currentDialogue;
-
-            dialogueInitializedListeners.ForEach(action => {
-                action(currentDialogue);
-            });
-
-            if (dialogueListeners["on_initialized"].ContainsKey(dialogue.id)) {
-                dialogueListeners["on_initialized"][dialogue.id].ForEach(action => {
-                    action(currentDialogue);
-                });
-            }
-
-            return;
-        }
-
-        public DialogueRuntime SelectOption(OptionSelection selection)
-        {
-            if (dialogueOptionSelectionListeners.ContainsKey(currentDialogue.Id)) {
-                dialogueOptionSelectionListeners[currentDialogue.Id].ForEach(action => {
+            if (listenerRegistry.DialogueOptionSelectionListeners.ContainsKey(currentDialogue.Id)) {
+                listenerRegistry.DialogueOptionSelectionListeners[currentDialogue.Id].ForEach(action => {
                     action(currentDialogue, selection);
                 });
             }
 
-            if (knownOptionSelectionListeners.ContainsKey(selection.Option.id)) {
-                knownOptionSelectionListeners[selection.Option.id].ForEach(action => {
+            if (listenerRegistry.KnownOptionSelectionListeners.ContainsKey(selection.Option.id)) {
+                listenerRegistry.KnownOptionSelectionListeners[selection.Option.id].ForEach(action => {
                     action(currentDialogue, selection);
                 });
             }
 
-            generalOptionSelectionListeners.ForEach(action => {
+            listenerRegistry.GeneralOptionSelectionListeners.ForEach(action => {
                 action(currentDialogue, selection);
             });
 
@@ -145,6 +124,17 @@ namespace DialogueSmith.Runtime
             InitializeDialogue(dialogueTree.GetDialogue(dialogueTree.option_relations.data[selection.Option.id]));
 
             return this;
+        }
+
+        protected DialogueRuntime End()
+        {
+            currentDialogue = null;
+
+            listenerRegistry.DialogueTreeListeners["on_tree_finished"].ForEach(action => {
+                action(this);
+            });
+
+            return null;
         }
     }
 }

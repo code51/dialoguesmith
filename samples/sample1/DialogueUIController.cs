@@ -4,58 +4,43 @@ using DialogueSmith.Managers;
 using DialogueSmith.Runtime;
 using UnityEngine;
 using UnityEngine.UI;
+using DialogueSmith;
 
 public class DialogueUIController : MonoBehaviour
 {
-    /// <summary>
-    /// if you want to manually use inspector
-    /// </summary>
     public TextAsset dialogueTreeText;
-
-    /// <summary>
-    /// if you want to specify the tree name.
-    /// </summary>
     public string dialogueTreeName;
 
     public Text text;
     public Transform container;
     public Transform sampleOption;
+    public Button continueButton;
 
     protected Transform selectionsContainer;
     protected RuntimeBuilder runtimeBuilder;
-    protected EntityManager entityManager;
-    protected DialogueManager dialogueManager;
+    protected RuntimeFactory runtimeFactory;
     protected DialogueRuntime runtime;
 
     private void Start()
     {
         selectionsContainer = container.Find("selections");
-        dialogueManager = new DialogueManager(new EntityManager("dialogues"));
-
-        if (dialogueTreeText != null) {
-            runtimeBuilder = dialogueManager.Build(dialogueTreeText);
-        } else if (dialogueTreeName != "") {
-            runtimeBuilder = dialogueManager.Build(dialogueTreeName);
-        }
-
-        // Dialogue registry
-        if (runtimeBuilder != null) {
-            runtimeBuilder.OnDialogueTreeBegin(DialogueTreeBegin)
+        runtimeFactory = (new RuntimeFactory(new EntityLoader("dialogues")))
+                .OnDialogueTreeBegin(DialogueTreeBegin)
                 .OnDialogueTreeFinished(DialogueTreeFinished)
                 .OnDialogueInitialized(DialogueUIUpdate)
                 .OnOptionSelected(DialogueOptionSelected);
-        }
     }
 
     private void Update()
     {
-        if (runtime != null) {
-            if (Input.GetKeyDown(KeyCode.X))
-                runtime = runtime.Next();
-        } else {
-            // to begin the dialogue
-            if (Input.GetKeyDown(KeyCode.C))
-                runtime = runtimeBuilder.Build();
+        if (runtime == null) {
+            // begin the dialogue
+            if (Input.GetKeyDown(KeyCode.C)) {
+                if (dialogueTreeText != null)
+                    runtime = runtimeFactory.Create(dialogueTreeText);
+                else if (dialogueTreeName != "")
+                    runtime = runtimeFactory.Create(dialogueTreeName);
+            }
         }
     }
 
@@ -67,16 +52,17 @@ public class DialogueUIController : MonoBehaviour
         }
     }
 
-    protected void DialogueTreeBegin()
+    protected void DialogueTreeBegin(DialogueRuntime runtime)
     {
         container.gameObject.SetActive(true);
+        continueButton.onClick.AddListener(() => runtime.Continue());
     }
 
-    protected void DialogueTreeFinished()
+    protected void DialogueTreeFinished(DialogueRuntime runtime)
     {
         container.gameObject.SetActive(false);
-
         selectionsContainer.gameObject.SetActive(false);
+        this.runtime = null;
     }
 
     protected void DialogueUIUpdate(CurrentDialogue dialogue)
@@ -84,6 +70,12 @@ public class DialogueUIController : MonoBehaviour
         text.text = dialogue.Text;
 
         selectionsContainer.gameObject.SetActive(false);
+
+        continueButton.gameObject.SetActive(!dialogue.HasSelections);
+
+        if (continueButton.gameObject.activeSelf)
+            continueButton.transform.Find("text").GetComponent<Text>().text = dialogue.IsEnding ? "Finish" : "Next";
+
 
         if (dialogue.HasSelections) {
             selectionsContainer.gameObject.SetActive(true);
@@ -97,9 +89,7 @@ public class DialogueUIController : MonoBehaviour
 
                 option.Find("text").GetComponent<Text>().text = selection.Text;
 
-                option.GetComponent<Button>().onClick.AddListener(() => {
-                    runtime.SelectOption(selection);
-                });
+                option.GetComponent<Button>().onClick.AddListener(() => runtime.Continue(selection));
 
                 option.SetParent(selectionsContainer);
             });

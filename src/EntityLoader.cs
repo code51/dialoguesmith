@@ -2,22 +2,34 @@
 using DialogueSmith.Entities;
 using UnityEngine;
 
-namespace DialogueSmith.Managers
+namespace DialogueSmith
 {
-    public class EntityManager
+    public class EntityLoader
     {
         /// <summary>
-        /// path relative to Assets folder
+        /// path relative to the resources folder
         /// </summary>
         protected string path;
 
-        public EntityManager(string path)
+        /// <summary>
+        /// The path relative to the resources folder
+        /// </summary>
+        /// <param name="path"></param>
+        public EntityLoader(string path)
         {
             this.path = path;
         }
 
+        public EntityLoader()
+        {
+            this.path = "";
+        }
+
         public DialogueTreeEntity LoadTree(string name)
         {
+            if (path == "")
+                throw new System.Exception("The entity loader has no dialogues location available.");
+
             TextAsset text = Resources.Load<TextAsset>(path + "/" + name);
 
             if (text == null)

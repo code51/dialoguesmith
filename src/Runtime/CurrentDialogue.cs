@@ -12,7 +12,20 @@ namespace DialogueSmith.Runtime
         public string Text { get { return text; } }
         public Dictionary<string, string> Variables { get { return new Dictionary<string, string>(variables); } }
         public List<OptionSelection> Selections { get { return selections; } }
+
+        /// <summary>
+        /// Whether this dialogue is extended
+        /// </summary>
         public bool IsExtended { get { return tree.IsExtended(dialogue); } }
+
+        /// <summary>
+        /// Dialogue is nearing the end
+        /// </summary>
+        public bool IsEnding => !IsExtended && !HasSelections;
+
+        /// <summary>
+        /// Whether this dialogue has available options
+        /// </summary>
         public bool HasSelections { get { return selections.Count > 0; } }
 
         protected DialogueTreeEntity tree;

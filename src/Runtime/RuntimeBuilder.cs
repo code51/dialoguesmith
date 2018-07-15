@@ -5,45 +5,23 @@ using DialogueSmith.Runtime.Exceptions;
 
 namespace DialogueSmith.Runtime
 {
-    public class RuntimeBuilder
+    public class RuntimeBuilder : AbstractRuntimeBuilder<RuntimeBuilder>
     {
-        protected Dictionary<string, List<Action>> dialogueTreeListeners = new Dictionary<string, List<Action>>() {
-            { "on_tree_begin", new List<Action>() },
-            { "on_tree_finished", new List<Action>() }
-        };
-
-        protected List<Action<CurrentDialogue>> dialogueInitializingListeners = new List<Action<CurrentDialogue>>();
-        protected List<Action<CurrentDialogue>> dialogueInitializedListeners = new List<Action<CurrentDialogue>>();
-        protected List<Action<CurrentDialogue>> dialogueContinuedListeners = new List<Action<CurrentDialogue>>();
-        protected Dictionary<string, List<Action<CurrentDialogue, OptionSelection>>> dialogueOptionSelectionListeners = new Dictionary<string, List<Action<CurrentDialogue, OptionSelection>>>();
-        protected Dictionary<string, List<Action<CurrentDialogue, OptionSelection>>> knownOptionSelectionListeners = new Dictionary<string, List<Action<CurrentDialogue, OptionSelection>>>();
-        protected List<Action<CurrentDialogue, OptionSelection>> generalOptionSelectionListeners = new List<Action<CurrentDialogue, OptionSelection>>();
-
-        protected Dictionary<string, Dictionary<string, List<Action<CurrentDialogue>>>> dialogueListeners = new Dictionary<string, Dictionary<string, List<Action<CurrentDialogue>>>>() {
-            { "on_initializing", new Dictionary<string, List<Action<CurrentDialogue>>>() },
-            { "on_initialized", new Dictionary<string, List<Action<CurrentDialogue>>>() },
-            { "on_continued", new Dictionary<string, List<Action<CurrentDialogue>>>() }
-        };
+        protected override RuntimeBuilder Instance => this;
 
         protected DialogueTreeEntity dialogueTree;
-        protected CurrentDialogue currentDialogue;
-        protected Random random;
-        protected string currentText;
-        protected List<OptionEntity> currentOptions;
-        protected Dictionary<string, string> variables;
 
-        public RuntimeBuilder(DialogueTreeEntity dialogueTree, Random random)
+        public RuntimeBuilder(DialogueTreeEntity dialogueTree, Random random) : base(random)
         {
             this.dialogueTree = dialogueTree;
             this.variables = new Dictionary<string, string>(dialogueTree.variables.data);
-            this.random = random;
         }
 
-        public RuntimeBuilder SetVariable(string name, string value)
+        public RuntimeBuilder(DialogueTreeEntity dialogueTree, Random random, ListenerRegistry listenerRegistry) : base(random)
         {
-            this.variables[name] = value;
-
-            return this;
+            this.dialogueTree = dialogueTree;
+            this.variables = new Dictionary<string, string>(dialogueTree.variables.data);
+            this.listenerRegistry = listenerRegistry;
         }
 
         /// <summary>
@@ -54,22 +32,10 @@ namespace DialogueSmith.Runtime
         /// <returns></returns>
         public RuntimeBuilder OnDialogueContinued(string dialogueId, Action<CurrentDialogue> callback)
         {
-            if (!dialogueListeners["on_continued"].ContainsKey(dialogueId))
-                dialogueListeners["on_continued"][dialogueId] = new List<Action<CurrentDialogue>>();
+            if (!listenerRegistry.DialogueSpecificListeners["on_continued"].ContainsKey(dialogueId))
+                listenerRegistry.DialogueSpecificListeners["on_continued"][dialogueId] = new List<Action<CurrentDialogue>>();
 
-            dialogueListeners["on_continued"][dialogueId].Add(callback);
-
-            return this;
-        }
-
-        /// <summary>
-        /// On every dialogue continued
-        /// </summary>
-        /// <param name="dialogue"></param>
-        /// <returns></returns>
-        public RuntimeBuilder OnDialogueContinued(Action<CurrentDialogue> dialogue)
-        {
-            dialogueContinuedListeners.Add(dialogue);
+            listenerRegistry.DialogueSpecificListeners["on_continued"][dialogueId].Add(callback);
 
             return this;
         }
@@ -83,47 +49,36 @@ namespace DialogueSmith.Runtime
         /// <returns></returns>
         public RuntimeBuilder OnDialogueInitializing(string dialogueId, Action<CurrentDialogue> callback)
         {
-            if (!dialogueListeners["on_initializing"].ContainsKey(dialogueId))
-                dialogueListeners["on_initializing"][dialogueId] = new List<Action<CurrentDialogue>>();
+            if (!listenerRegistry.DialogueSpecificListeners["on_initializing"].ContainsKey(dialogueId))
+                listenerRegistry.DialogueSpecificListeners["on_initializing"][dialogueId] = new List<Action<CurrentDialogue>>();
 
-            dialogueListeners["on_initializing"][dialogueId].Add(callback);
-
-            return this;
-        }
-
-        /// <summary>
-        /// On every dialogue initializing.
-        /// Can use this to set up variables etc.
-        /// </summary>
-        /// <param name="dialogue"></param>
-        /// <returns></returns>
-        public RuntimeBuilder OnDialogueInitializing(Action<CurrentDialogue> dialogue)
-        {
-            dialogueInitializingListeners.Add(dialogue);
+            listenerRegistry.DialogueSpecificListeners["on_initializing"][dialogueId].Add(callback);
 
             return this;
         }
 
         public RuntimeBuilder OnDialogueInitialized(string dialogueId, Action<CurrentDialogue> callback)
         {
-            if (!dialogueListeners["on_initialized"].ContainsKey(dialogueId))
-                dialogueListeners["on_initialized"][dialogueId] = new List<Action<CurrentDialogue>>();
+            if (!listenerRegistry.DialogueSpecificListeners["on_initialized"].ContainsKey(dialogueId))
+                listenerRegistry.DialogueSpecificListeners["on_initialized"][dialogueId] = new List<Action<CurrentDialogue>>();
 
-            dialogueListeners["on_initialized"][dialogueId].Add(callback);
+            listenerRegistry.DialogueSpecificListeners["on_initialized"][dialogueId].Add(callback);
 
             return this;
         }
 
         /// <summary>
-        /// On every initialized dialogue.
-        /// Can use this for UI building, and preparation
-        /// as variables are supposedly be completely applied at this time.
+        /// On dialogue option selected
         /// </summary>
-        /// <param name="dialogue"></param>
+        /// <param name="dialogueId"></param>
+        /// <param name="callback"></param>
         /// <returns></returns>
-        public RuntimeBuilder OnDialogueInitialized(Action<CurrentDialogue> dialogue)
+        public RuntimeBuilder OnOptionSelected(string dialogueId, Action<CurrentDialogue, OptionSelection> callback)
         {
-            dialogueInitializedListeners.Add(dialogue);
+            if (!listenerRegistry.DialogueOptionSelectionListeners.ContainsKey(dialogueId))
+                listenerRegistry.DialogueOptionSelectionListeners[dialogueId] = new List<Action<CurrentDialogue, OptionSelection>>();
+
+            listenerRegistry.DialogueOptionSelectionListeners[dialogueId].Add(callback);
 
             return this;
         }
@@ -139,63 +94,10 @@ namespace DialogueSmith.Runtime
         {
             OptionEntity option = dialogueTree.GetDialogue(dialogueId).options[optionIndex];
 
-            if (!knownOptionSelectionListeners.ContainsKey(option.id))
-                knownOptionSelectionListeners[option.id] = new List<Action<CurrentDialogue, OptionSelection>>();
+            if (!listenerRegistry.KnownOptionSelectionListeners.ContainsKey(option.id))
+                listenerRegistry.KnownOptionSelectionListeners[option.id] = new List<Action<CurrentDialogue, OptionSelection>>();
 
-            knownOptionSelectionListeners[option.id].Add(callback);
-
-            return this;
-        }
-
-        /// <summary>
-        /// On dialogue option selected
-        /// </summary>
-        /// <param name="dialogueId"></param>
-        /// <param name="callback"></param>
-        /// <returns></returns>
-        public RuntimeBuilder OnOptionSelected(string dialogueId, Action<CurrentDialogue, OptionSelection> callback)
-        {
-            if (!dialogueOptionSelectionListeners.ContainsKey(dialogueId))
-                dialogueOptionSelectionListeners[dialogueId] = new List<Action<CurrentDialogue, OptionSelection>>();
-
-            dialogueOptionSelectionListeners[dialogueId].Add(callback);
-            
-            return this;
-        }
-
-        /// <summary>
-        /// On every option selected
-        /// </summary>
-        /// <param name="callback"></param>
-        /// <returns></returns>
-        public RuntimeBuilder OnOptionSelected(Action<CurrentDialogue, OptionSelection> callback)
-        {
-            generalOptionSelectionListeners.Add(callback);
-
-            return this;
-        }
-
-        /// <summary>
-        /// On dialogue tree begin. Use this to set up set up UI, enabling etc.
-        /// </summary>
-        /// <param name="callback"></param>
-        /// <returns></returns>
-        public RuntimeBuilder OnDialogueTreeBegin(Action callback)
-        {
-            dialogueTreeListeners["on_tree_begin"].Add(callback);
-
-            return this;
-        }
-
-        /// <summary>
-        /// When a dialogue has finished.
-        /// Use this to disable UI etc.
-        /// </summary>
-        /// <param name="callback"></param>
-        /// <returns></returns>
-        public RuntimeBuilder OnDialogueTreeFinished(Action callback)
-        {
-            dialogueTreeListeners["on_tree_finished"].Add(callback);
+            listenerRegistry.KnownOptionSelectionListeners[option.id].Add(callback);
 
             return this;
         }
@@ -206,14 +108,7 @@ namespace DialogueSmith.Runtime
                 dialogueTree,
                 variables,
                 random,
-                dialogueTreeListeners,
-                dialogueInitializingListeners,
-                dialogueInitializedListeners,
-                dialogueContinuedListeners,
-                dialogueOptionSelectionListeners,
-                knownOptionSelectionListeners,
-                generalOptionSelectionListeners,
-                dialogueListeners
+                listenerRegistry
                 );
         }
     }

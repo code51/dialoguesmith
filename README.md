@@ -8,38 +8,28 @@ git clone https://github.com/code51/dialoguesmith
 ```
 
 # Implementations
-there're multiple ways to implement the use of your dialogues in the scene. while the major feature of this package is mostly about editing a dialogue tree, other being a convenient way to use them in the scene.
+there're multiple ways to implement the use of your dialogues in the scene. while the major feature of this package is mostly about editing a dialogue tree, other being a convenience to use them in the code.
 
-## dialogue manager
-A manager to create the builder of the dialogue tree runtime.
+## Runtime factory
+A factory derived from AbstractRuntimeBuilder to help creating a runtime, including setting up the listeners to number of events
 
-#### without entity manager
+#### without entity loader
 ```c#
 using System;
-using DialogueSmith.Managers;
 using DialogueSmith.Runtime;
 
 ...
 
-DialogueManager manager = new DialogueManager(new Random());
+RuntimeFactory factory = new RuntimeFactory(new Random());
 ```
 
-#### with entity manager
-An entity manager helps you locate your dialogues by it's string name, instead of TextAsset. The dialogues have to be placed inside your resources folder.
-```
-DialogueManager manager = new DialogueManager(new EntityManager(), new Random());
-```
-
-## runtime builder
-A builder pattern to help building a runtime, including setting up the listener to number of events
-
-```
-RuntimeBuilder builder = manager.Build("npm/" + merchantName);
+#### with entity loader
+An entity loader helps you locate your dialogues by it's string name, instead of TextAsset. The dialogues directory have to be placed inside your resources folder.
+```c#
+RuntimeFactory factory = new RuntimeFactory(new EntityLoader("dialogues"), new Random());
 ```
 
 ### listeners
-Most of the listeners have more than 1 overrides that usually accept a known dialogue id.
-
 #### OnDialogueTreeBegin()
 called when the runtime has begun. can be used for UI enabling etc.
 
@@ -50,34 +40,48 @@ called when the runtime/dialogue tree has finished.
 called when a dialogue is initializing. can be used to apply dialogue specific variables, filters and so on.
 
 #### OnDialogueInitialized()
-called when a dialogue has been initialized. Can be used to set up UI for the override that accepts no dialogueId (1 argument only)
+called when a dialogue has been initialized. Can be used to draw the UI update.
 
 #### OnDialogueContinued()
-called when a dialogue without selections is continued. and before the next dialogue is initialized.
+called when a dialogue without selections is continued. and before the next dialogue is initialized. for selection based continue event, use ```OnOptionSelected()```
 
 #### OnOptionSelected()
-called when an option has been selected. there're three overrides that's suitable for many use case. 
+called when an option has been selected. 
 
 ### example usages
 #### registry
 ```
-builder.OnDialogueTreeBegin(EnableDialogueUI)
-	.OnDialogueTreeFinished(DisableDialogueUI)
-	.OnDialogueInitialized(DialogueUIUpdate)
-	.OnOptionSelected(DialogueSelectionUpdate);
-```
-
-#### begin runtime
-```
-DialogueRuntime runtime = builder.build();
+factory.OnDialogueTreeBegin(HandleDialogueTreeBegin)
+	.OnDialogueTreeFinished(HandleDialogueTreeFinished)
+	.OnDialogueInitialized(HandleDialogueUpdate)
+	.OnOptionSelected(HandleDialogueSelectionUpdate);
 ```
 
 ## Runtime
-An object that is being used to maintain the state of the dialogue tree in game. originally created by a DialogueBuilder as explained above.
+An object that is being used to maintain the state of the dialogue tree in game. originally created by a ```RuntimeFactory``` as explained above.
 
-### Next()
-used to continue to the next dialogue. an exception will be thrown if there's an option available for the dialogue. 
-the dialogue tree ends when there's no more dialogue available (or not in anyway connected to this).
+#### Continue()
+used to proceed the dialogue. there're two overrides available for this method. one without argument, second with the argument that requires OptionSelection object. 
+The dialogue tree ends, when there's no longer dialogue available next.
 
-### SelectOption()
-used to select an option. same behaviour when there's no more dialogue available for this option.
+### Usage
+create the runtime, with the first dialogue initialization.
+```
+DialogueRuntime runtime = factory.Create(dialogueTreeText);
+```
+or 
+```
+DialogueRuntime runtime = factory.Create(dialogueName);
+```
+
+## Runtime Builder
+A similar class derived from AbstractRuntimeBuilder to handle more sophisticated cases, introducing more than one overrides for existing methods.
+
+```
+RuntimeBuilder builder = factory.CreateBuilder("npc/generic-merchant");
+```
+
+### Usage
+```
+DialogueRuntime runtime = builder.Build();
+```
