@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Talky.Managers;
-using Talky.Runtime;
+using DialogueSmith.Managers;
+using DialogueSmith.Runtime;
 using UnityEngine;
 using UnityEngine.UI;
 
