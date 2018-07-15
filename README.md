@@ -68,5 +68,16 @@ builder.OnDialogueTreeBegin(EnableDialogueUI)
 ```
 
 #### begin runtime
+```
 DialogueRuntime runtime = builder.build();
+```
 
+## Runtime
+An object that is being used to maintain the state of the dialogue tree in game. originally created by a DialogueBuilder as explained above.
+
+### Next()
+used to continue to the next dialogue. an exception will be thrown if there's an option available for the dialogue. 
+the dialogue tree ends when there's no more dialogue available (or not in anyway connected to this).
+
+### SelectOption()
+used to select an option. same behaviour when there's no more dialogue available for this option.
