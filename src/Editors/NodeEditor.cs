@@ -32,11 +32,10 @@ namespace DialogueSmith.Editors
 
         protected KeyValuePair<DialogueNode, OptionEntity> activeConnection = new KeyValuePair<DialogueNode, OptionEntity>();
 
-        [MenuItem("Window/Simple Dialogue Editor")]
+        [MenuItem("Window/Dialoguesmith")]
         public static void ShowEditor()
         {
             instance = EditorWindow.GetWindow<NodeEditor>();
-
         }
         
         protected void OnGUI()
