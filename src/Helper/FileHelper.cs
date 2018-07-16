@@ -23,5 +23,10 @@ namespace DialogueSmith.Helper
 
             return entries;
         }
+
+        public static void CreateDirectoryForPath(string path)
+        {
+
+        }
     }
 }

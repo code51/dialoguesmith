@@ -455,22 +455,6 @@ namespace DialogueSmith.Editors
 
             IsScoping = true;
         }
-        
-        //protected void CreateOptionResponseDialogue(DialogueNode origin, KeyValuePair<int, OptionEntity> option)
-        //{
-        //    var dialogue = new DialogueEntity() {
-        //        id = UnityEngine.Random.Range(0, 1000000).ToString(),
-        //        window = new WindowEntity() {
-        //            x = origin.Window.x + 250f,
-        //            y = origin.Window.y + (option.Key * 180f),
-        //            width = 150f,
-        //            height = 100
-        //        }
-        //    };
-
-        //    nodes.Add(CreateInstance<DialogueNode>().Initialize(dialogue));
-        //    CurrentTree.RelateOption(option.Value.id, dialogue.id);
-        //}
 
         protected DialogueNode CreateDialogue()
         {
@@ -751,6 +735,11 @@ namespace DialogueSmith.Editors
                     return false;
                 }
             }
+
+            string dir = Path.GetDirectoryName(path);
+
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
 
             if (OriginalName != "" && OriginalName != null && CurrentTree.name != OriginalName) {
                 File.Move(dialoguePath + "/" + OriginalName + ".json", path);
