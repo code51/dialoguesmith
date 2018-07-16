@@ -186,7 +186,7 @@ namespace DialogueSmith.Editors.Node
                     textIndex = textIndex == (entity.texts.Count - 1) ? 0 : textIndex + 1;
                 });
 
-                AddAction(new Rect(153f, heightOffset -2f, 13f, 13f), entity.textContinuity ? "repeat.png" : "random.png", () => {
+                AddAction(new Rect(153f, heightOffset -2f, 12f, 12f), entity.textContinuity ? "repeat.png" : "random.png", () => {
                     entity.textContinuity = !entity.textContinuity;
                 });
 

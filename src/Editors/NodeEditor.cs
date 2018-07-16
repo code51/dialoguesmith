@@ -9,6 +9,7 @@ using DialogueSmith.Helper;
 using UnityEditor;
 using UnityEngine;
 using UnityEditor.SceneManagement;
+using DialogueSmith.Managers;
 
 namespace DialogueSmith.Editors
 {
@@ -26,12 +27,14 @@ namespace DialogueSmith.Editors
         protected List<DialogueNode> nodes = new List<DialogueNode>();
         protected bool treeInitialized = false;
         protected Vector2 scrollPos;
+        protected bool needScroll = false;
 
         protected float viewWidth = 1024f;
         protected float viewHeight = 768f;
         protected static NodeEditor instance;
-
         protected KeyValuePair<DialogueNode, OptionEntity> activeConnection = new KeyValuePair<DialogueNode, OptionEntity>();
+
+        protected Vector2 lastDragPosition;
 
         [MenuItem("Window/Dialoguesmith")]
         public static void ShowEditor()
@@ -41,6 +44,8 @@ namespace DialogueSmith.Editors
         
         protected void OnGUI()
         {
+            IncreaseScrollView();
+
             Event e = Event.current;
 
             mousePos = Event.current.mousePosition;
@@ -48,9 +53,18 @@ namespace DialogueSmith.Editors
             if (instance == null)
                 instance = this;
 
-            scrollPos = EditorGUILayout.BeginScrollView(scrollPos, true, true);
+            //GUILayout.BeginArea(new Rect(0, 0, 2500, 2500));
 
-            mousePos += scrollPos;
+            if (needScroll) {
+                scrollPos = EditorGUILayout.BeginScrollView(scrollPos, true, true);
+                mousePos += scrollPos;
+            }
+
+            GUI.backgroundColor = Color.clear;
+            GUILayout.Box("", GUILayout.Width(viewWidth), GUILayout.Height(viewHeight));
+            GUI.backgroundColor = new Color(1f, 1f, 1f, 1f);
+
+            ScrollMouseDrag(e);
 
             if (!treeInitialized) {
                 DialogueManager(e);
@@ -61,7 +75,48 @@ namespace DialogueSmith.Editors
                 DrawNodes();
                 DrawCurves();
             }
-            EditorGUILayout.EndScrollView();
+
+            if (needScroll)
+                EditorGUILayout.EndScrollView();
+        }
+
+        protected void ScrollMouseDrag(Event e)
+        {
+            // middle mouse drag
+            if (e.type == EventType.MouseDrag && e.button == 2) {
+                if (lastDragPosition != Vector2.zero) {
+                    //scrollPos = Vector2.Lerp(scrollPos, scrollPos - ((e.mousePosition - lastDragPosition).normalized) * 10f, 0.3f);
+                    scrollPos = scrollPos - ((e.mousePosition - lastDragPosition).normalized) * 10f;
+                }
+
+                lastDragPosition = e.mousePosition;
+            }
+        }
+
+        public void IncreaseScrollView()
+        {
+            float buffer = 50f;
+            float width = 0f;
+            float height = 0f;
+
+            nodes.ForEach(node => {
+                width = node.Window.x + node.Window.width > width ? node.Window.x + node.Window.width : width;
+                height = node.Window.y + node.Window.height > height ? node.Window.y + node.Window.height : height;
+            });
+
+            width += buffer;
+            height += buffer;
+
+            viewWidth = Mathf.Clamp(width, Screen.width, width);
+            viewHeight = Mathf.Clamp(height, Screen.height - 20f, height);
+
+            if (viewWidth > Screen.width || viewHeight > Screen.height)
+                needScroll = true;
+            else
+                needScroll = false;
+
+            if (needScroll)
+                Repaint();
         }
 
         public void ActorsUpdate()
