@@ -20,6 +20,7 @@ namespace DialogueSmith.Runtime
 
         public Dictionary<string, string> Variables { get { return new Dictionary<string, string>(variables); } }
         public List<OptionSelection> Selections { get { return selections; } }
+        public string Actor => dialogue.actor != null && dialogue.actor != "" ? dialogue.actor : (tree.main_actor != null && tree.main_actor != "" ? tree.main_actor : null);
 
         /// <summary>
         /// Whether this dialogue is extended
@@ -111,16 +112,18 @@ namespace DialogueSmith.Runtime
         public CurrentDialogue ApplyVariables(Dictionary<string, string> variables)
         {
             // merge first
-            foreach (var item in variables.Keys.ToList()) {
-                this.variables[item] = variables[item];
+            foreach (var key in variables.Keys.ToList()) {
+                this.variables[key] = variables[key];
             }
 
             //text = originalText;
             texts = new List<string>(originalTexts);
 
+
+            // apply
             foreach (var item in this.variables) {
                 var i = 0;
-                foreach (var text in texts) {
+                foreach (var text in texts.ToList()) {
                     texts[i] = text.Replace("{" + item.Key + "}", item.Value);
                     i++;
                 }

@@ -16,6 +16,7 @@ public class DialogueUIController : MonoBehaviour
     public Transform sampleOption;
     public Button continueButton;
 
+    protected Transform actorContainer;
     protected Transform selectionsContainer;
     protected RuntimeBuilder runtimeBuilder;
     protected RuntimeFactory runtimeFactory;
@@ -28,9 +29,14 @@ public class DialogueUIController : MonoBehaviour
                 .OnDialogueTreeBegin(DialogueTreeBegin)
                 .OnDialogueTreeFinished(DialogueTreeFinished)
                 .OnDialogueReady(DialogueUIUpdate)
-                .OnOptionSelected(DialogueOptionSelected);
+                .OnOptionSelected(DialogueOptionSelected)
+                .SetVariables(new Dictionary<string, string>() {
+                    { "title", "captain" },
+                    { "gold", "100f" }
+                });
 
         continueButton.onClick.AddListener(() => runtime.Continue());
+        actorContainer = container.Find("actor");
     }
 
     private void Update()
@@ -74,8 +80,13 @@ public class DialogueUIController : MonoBehaviour
 
         continueButton.gameObject.SetActive(!dialogue.HasSelections);
 
+        actorContainer.gameObject.SetActive(dialogue.Actor != null ? true : false);
+
         if (continueButton.gameObject.activeSelf)
             continueButton.transform.Find("text").GetComponent<Text>().text = dialogue.IsEnding ? "Finish" : "Next";
+
+        if (actorContainer.gameObject.activeSelf)
+            actorContainer.Find("text").GetComponent<Text>().text = dialogue.Actor;
 
         if (dialogue.HasSelections) {
             selectionsContainer.gameObject.SetActive(true);

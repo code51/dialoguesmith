@@ -25,6 +25,14 @@ namespace DialogueSmith.Runtime
             return Instance;
         }
 
+        public Builder SetVariables(Dictionary<string, string> variables)
+        {
+            foreach (var item in variables)
+                this.variables[item.Key] = item.Value;
+
+            return Instance;
+        }
+
         /// <summary>
         /// On every dialogue continued
         /// </summary>
