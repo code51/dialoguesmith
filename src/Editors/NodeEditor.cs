@@ -742,6 +742,7 @@ namespace DialogueSmith.Editors
                 Directory.CreateDirectory(dir);
 
             if (OriginalName != "" && OriginalName != null && CurrentTree.name != OriginalName) {
+                File.Move(dialoguePath + "/" + OriginalName + ".json.meta", path + ".meta");
                 File.Move(dialoguePath + "/" + OriginalName + ".json", path);
             }
 
