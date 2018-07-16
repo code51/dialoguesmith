@@ -693,6 +693,8 @@ namespace DialogueSmith.Editors
 
             OriginalName = CurrentTree.name;
 
+            AssetDatabase.Refresh();
+
             return true;
         }
     }
