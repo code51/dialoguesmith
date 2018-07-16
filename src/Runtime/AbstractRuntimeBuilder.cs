@@ -43,23 +43,23 @@ namespace DialogueSmith.Runtime
         /// </summary>
         /// <param name="dialogue"></param>
         /// <returns></returns>
-        public Builder OnDialogueInitializing(Action<CurrentDialogue> dialogue)
+        public Builder OnDialogueInitialization(Action<CurrentDialogue> dialogue)
         {
-            listenerRegistry.DialogueGeneralListeners["on_initializing"].Add(dialogue);
+            listenerRegistry.DialogueGeneralListeners["on_initialization"].Add(dialogue);
 
             return Instance;
         }
 
         /// <summary>
-        /// On every initialized dialogue.
+        /// Called on every ready dialogue.
         /// Can use this for UI building, and preparation
         /// as variables are supposedly be completely applied at this time.
         /// </summary>
         /// <param name="dialogue"></param>
         /// <returns></returns>
-        public Builder OnDialogueInitialized(Action<CurrentDialogue> dialogue)
+        public Builder OnDialogueReady(Action<CurrentDialogue> dialogue)
         {
-            listenerRegistry.DialogueGeneralListeners["on_initialized"].Add(dialogue);
+            listenerRegistry.DialogueGeneralListeners["on_ready"].Add(dialogue);
 
             return Instance;
         }

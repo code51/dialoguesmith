@@ -53,7 +53,7 @@ namespace DialogueSmith.Editors
             GenericMenu menu = new GenericMenu();
 
             if (EditorPrefs.HasKey(SETTING_DIALOGUES_PATH)) {
-                menu.AddItem(new GUIContent("Change Dialogues Path"), false, delegate {
+                menu.AddItem(new GUIContent("Change dialogues path"), false, delegate {
                     string originPath = "Assets";
 
                     if (Directory.Exists(EditorPrefs.GetString(SETTING_DIALOGUES_PATH)))
@@ -79,7 +79,7 @@ namespace DialogueSmith.Editors
                     SyncNaming();
                 });
             } else {
-                menu.AddItem(new GUIContent("Select Dialogues Path"), false, delegate {
+                menu.AddItem(new GUIContent("Select dialogues path"), false, delegate {
                     string path = EditorUtility.OpenFolderPanel("", "Assets", "");
                     EditorPrefs.SetString(SETTING_DIALOGUES_PATH, path);
                 });

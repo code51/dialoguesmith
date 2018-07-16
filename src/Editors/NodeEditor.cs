@@ -92,15 +92,29 @@ namespace DialogueSmith.Editors
             if (!(e.type == EventType.MouseDown && e.button == 0))
                 return;
 
+            GUI.FocusControl(null);
+
             foreach (var node in nodes) {
                 if (node.IsClicked("text_left", mousePos)) {
-                    GUI.FocusControl(null);
                     node.textIndex = node.textIndex == 0 ? node.entity.texts.Count - 1 : node.textIndex - 1;
                 }
 
                 if (node.IsClicked("text_right", mousePos)) {
-                    GUI.FocusControl(null);
                     node.textIndex = node.textIndex == (node.entity.texts.Count - 1) ? 0 : node.textIndex + 1;
+                }
+
+                if (node.IsClicked("add_alt_text", mousePos)) {
+                    node.entity.texts.Add("");
+                    node.textIndex = node.entity.texts.Count - 1;
+                }
+
+                if (node.IsClicked("remove_alt_text", mousePos)) {
+                    node.entity.texts.Remove(node.entity.texts[node.textIndex]);
+                    node.textIndex = Mathf.Clamp(node.textIndex - 1, 0, node.textIndex);
+                }
+
+                if (node.IsClicked("text_continuity_toggle", mousePos)) {
+                    node.entity.textContinuity = !node.entity.textContinuity;
                 }
             }
         }
@@ -234,7 +248,7 @@ namespace DialogueSmith.Editors
                     
                     menu.AddSeparator("");
 
-                    menu.AddItem(new GUIContent("New Dialogue"), false, delegate {
+                    menu.AddItem(new GUIContent("New dialogue"), false, delegate {
                         CreateDialogue();
                     });
 
@@ -278,7 +292,7 @@ namespace DialogueSmith.Editors
 
                         if (option.Value != null) {
                             if (!CurrentTree.IsOptionExtended(option.Value)) {
-                                menu.AddItem(new GUIContent("Remove Option"), false, delegate {
+                                menu.AddItem(new GUIContent("Remove option"), false, delegate {
                                     RemoveOption(node, option.Value);
                                     node.ResetSize();
                                 });
@@ -289,20 +303,16 @@ namespace DialogueSmith.Editors
                             }
                         
                         } else {
-                            menu.AddItem(new GUIContent("Add Text"), false, delegate {
-                                node.entity.texts.Add("");
-                                GUI.FocusControl(null);
-                            });
 
-                            if (node.entity.texts.Count > 1) {
-                                menu.AddItem(new GUIContent("Remove Text " + (node.textIndex + 1)), false, delegate {
-                                    node.entity.texts.Remove(node.entity.texts[node.textIndex]);
-                                    node.textIndex = Mathf.Clamp(node.textIndex - 1, 0, node.textIndex);
-                                });
-                            }
+                            //if (node.entity.texts.Count > 1) {
+                            //    menu.AddItem(new GUIContent("Use alt. texts for continuity"), false, delegate {
+                            //        node.entity.texts.Remove(node.entity.texts[node.textIndex]);
+                            //        node.textIndex = Mathf.Clamp(node.textIndex - 1, 0, node.textIndex);
+                            //    });
+                            //}
 
                             if (!CurrentTree.IsExtended(node.entity)) {
-                                menu.AddItem(new GUIContent("Add Option"), false, delegate {
+                                menu.AddItem(new GUIContent("Add option"), false, delegate {
                                     node.entity.options.Add(new OptionEntity() {
                                         id = node.entity.id + "." + UnityEngine.Random.Range(1, 100).ToString()
                                     });
@@ -310,7 +320,7 @@ namespace DialogueSmith.Editors
                             }
 
                             if (nodes.Count > 1 && nodes.ElementAt(0) != node) {
-                                menu.AddItem(new GUIContent("Remove Dialogue"), false, delegate {
+                                menu.AddItem(new GUIContent("Remove dialogue"), false, delegate {
                                     RemoveDialogue(node);
                                 });
 

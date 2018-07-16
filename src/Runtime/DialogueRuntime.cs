@@ -40,31 +40,45 @@ namespace DialogueSmith.Runtime
 
         protected void InitializeDialogue(DialogueEntity dialogue)
         {
-            CurrentDialogue currentDialogue = new CurrentDialogue(dialogueTree, dialogue, dialogue.texts[random.Next(0, dialogue.texts.Count)], variables);
+            List<string> texts;
 
-            listenerRegistry.DialogueGeneralListeners["on_initializing"].ForEach(action => {
+            if (dialogue.textContinuity)
+                texts = new List<string>(dialogue.texts);
+            else
+                texts = new List<string>() {
+                    dialogue.texts[random.Next(0, dialogue.texts.Count)]
+                };
+
+            CurrentDialogue currentDialogue = new CurrentDialogue(dialogueTree, dialogue, texts, variables);
+
+            listenerRegistry.DialogueGeneralListeners["on_initialization"].ForEach(action => {
                 action(currentDialogue);
             });
 
-            if (listenerRegistry.DialogueSpecificListeners["on_initializing"].ContainsKey(dialogue.id)) {
-                listenerRegistry.DialogueSpecificListeners["on_initializing"][dialogue.id].ForEach(action => {
+            if (listenerRegistry.DialogueSpecificListeners["on_initialization"].ContainsKey(dialogue.id)) {
+                listenerRegistry.DialogueSpecificListeners["on_initialization"][dialogue.id].ForEach(action => {
                     action(currentDialogue);
                 });
             }
 
             this.currentDialogue = currentDialogue;
 
-            listenerRegistry.DialogueGeneralListeners["on_initialized"].ForEach(action => {
+            DialogueReadyListenersCall(dialogue);
+
+            return;
+        }
+
+        protected void DialogueReadyListenersCall(DialogueEntity dialogue)
+        {
+            listenerRegistry.DialogueGeneralListeners["on_ready"].ForEach(action => {
                 action(currentDialogue);
             });
 
-            if (listenerRegistry.DialogueSpecificListeners["on_initialized"].ContainsKey(dialogue.id)) {
-                listenerRegistry.DialogueSpecificListeners["on_initialized"][dialogue.id].ForEach(action => {
+            if (listenerRegistry.DialogueSpecificListeners["on_ready"].ContainsKey(dialogue.id)) {
+                listenerRegistry.DialogueSpecificListeners["on_ready"][dialogue.id].ForEach(action => {
                     action(currentDialogue);
                 });
             }
-
-            return;
         }
 
         /// <summary>
@@ -73,6 +87,11 @@ namespace DialogueSmith.Runtime
         /// <returns></returns>
         public DialogueRuntime Continue()
         {
+            if (currentDialogue.TextIndexIncrement()) {
+                DialogueReadyListenersCall(currentDialogue.Origin);
+                return this;
+            }
+
             if (currentDialogue.Selections.Count > 0)
                 throw new InvalidChoiceException();
 
@@ -101,6 +120,11 @@ namespace DialogueSmith.Runtime
         /// <returns></returns>
         public DialogueRuntime Continue(OptionSelection selection)
         {
+            if (currentDialogue.TextIndexIncrement()) {
+                DialogueReadyListenersCall(currentDialogue.Origin);
+                return this;
+            }
+
             if (listenerRegistry.DialogueOptionSelectionListeners.ContainsKey(currentDialogue.Id)) {
                 listenerRegistry.DialogueOptionSelectionListeners[currentDialogue.Id].ForEach(action => {
                     action(currentDialogue, selection);

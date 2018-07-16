@@ -840,8 +840,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d529dd5d3a888674d89ff518c19743d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogueTreeText: {fileID: 4900000, guid: 271fcfab33307c44380ad71a7cbb1114, type: 3}
-  dialogueTreeName: 
+  dialogueTreeText: {fileID: 0}
+  dialogueTreeName: hello
   text: {fileID: 880278237}
   container: {fileID: 1716955671}
   sampleOption: {fileID: 417857824}

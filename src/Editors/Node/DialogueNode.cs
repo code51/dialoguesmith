@@ -21,7 +21,10 @@ namespace DialogueSmith.Editors.Node
         protected Rect textRight;
         protected Dictionary<string, Rect> rects = new Dictionary<string, Rect>() {
             { "text_left", Rect.zero },
-            { "text_right", Rect.zero }
+            { "text_right", Rect.zero },
+            { "remove_alt_text", Rect.zero },
+            { "add_alt_text", Rect.zero },
+            { "text_continuity_toggle", Rect.zero }
         };
         protected Rect originalRect;
 
@@ -140,9 +143,20 @@ namespace DialogueSmith.Editors.Node
                 (originalText.Contains("{") && !entity.texts[textIndex].Contains("{")))
                 NodeEditor.Instance.VariableUpdates();
 
+            GUI.DrawTexture(rects["add_alt_text"] = new Rect(200f, 60f, 10f, 10f), FileManager.Instance.LoadTexture("plus.png"));
+
             if (entity.texts.Count > 1) {
-                GUI.DrawTexture(rects["text_left"] = new Rect(60f, 60f, 10f, 10f), FileManager.Instance.LoadTexture("left_arrow.png"));
-                GUI.DrawTexture(rects["text_right"] = new Rect(75f, 60f, 10f, 10f), FileManager.Instance.LoadTexture("right_arrow.png"));
+                GUI.DrawTexture(rects["text_left"] = new Rect(170f, 60f, 10f, 10f), FileManager.Instance.LoadTexture("left_arrow.png"));
+                GUI.DrawTexture(rects["text_right"] = new Rect(185f, 60f, 10f, 10f), FileManager.Instance.LoadTexture("right_arrow.png"));
+
+                if (entity.textContinuity)
+                    GUI.DrawTexture(rects["text_continuity_toggle"] = new Rect(153f, 57f, 15f, 15f), FileManager.Instance.LoadTexture("repeat.png"));
+                else
+                    GUI.DrawTexture(rects["text_continuity_toggle"] = new Rect(153f, 57f, 15f, 15f), FileManager.Instance.LoadTexture("random.png"));
+
+                if (textIndex != 0) {
+                    GUI.DrawTexture(rects["remove_alt_text"] = new Rect(140f, 60f, 10f, 10f), FileManager.Instance.LoadTexture("cross.png"));
+                }
             }
 
             int i = 1;

@@ -27,8 +27,10 @@ public class DialogueUIController : MonoBehaviour
         runtimeFactory = (new RuntimeFactory(new EntityLoader("dialogues")))
                 .OnDialogueTreeBegin(DialogueTreeBegin)
                 .OnDialogueTreeFinished(DialogueTreeFinished)
-                .OnDialogueInitialized(DialogueUIUpdate)
+                .OnDialogueReady(DialogueUIUpdate)
                 .OnOptionSelected(DialogueOptionSelected);
+
+        continueButton.onClick.AddListener(() => runtime.Continue());
     }
 
     private void Update()
@@ -55,7 +57,6 @@ public class DialogueUIController : MonoBehaviour
     protected void DialogueTreeBegin(DialogueRuntime runtime)
     {
         container.gameObject.SetActive(true);
-        continueButton.onClick.AddListener(() => runtime.Continue());
     }
 
     protected void DialogueTreeFinished(DialogueRuntime runtime)
@@ -75,7 +76,6 @@ public class DialogueUIController : MonoBehaviour
 
         if (continueButton.gameObject.activeSelf)
             continueButton.transform.Find("text").GetComponent<Text>().text = dialogue.IsEnding ? "Finish" : "Next";
-
 
         if (dialogue.HasSelections) {
             selectionsContainer.gameObject.SetActive(true);

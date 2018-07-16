@@ -47,22 +47,29 @@ namespace DialogueSmith.Runtime
         /// <param name="dialogueId"></param>
         /// <param name="callback"></param>
         /// <returns></returns>
-        public RuntimeBuilder OnDialogueInitializing(string dialogueId, Action<CurrentDialogue> callback)
+        public RuntimeBuilder OnDialogueInitialization(string dialogueId, Action<CurrentDialogue> callback)
         {
-            if (!listenerRegistry.DialogueSpecificListeners["on_initializing"].ContainsKey(dialogueId))
-                listenerRegistry.DialogueSpecificListeners["on_initializing"][dialogueId] = new List<Action<CurrentDialogue>>();
+            if (!listenerRegistry.DialogueSpecificListeners["on_initialization"].ContainsKey(dialogueId))
+                listenerRegistry.DialogueSpecificListeners["on_initialization"][dialogueId] = new List<Action<CurrentDialogue>>();
 
-            listenerRegistry.DialogueSpecificListeners["on_initializing"][dialogueId].Add(callback);
+            listenerRegistry.DialogueSpecificListeners["on_initialization"][dialogueId].Add(callback);
 
             return this;
         }
 
-        public RuntimeBuilder OnDialogueInitialized(string dialogueId, Action<CurrentDialogue> callback)
+        /// <summary>
+        /// On selected dialogue being ready
+        /// Can be used to set up UI etc
+        /// </summary>
+        /// <param name="dialogueId"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        public RuntimeBuilder OnDialogueReady(string dialogueId, Action<CurrentDialogue> callback)
         {
-            if (!listenerRegistry.DialogueSpecificListeners["on_initialized"].ContainsKey(dialogueId))
-                listenerRegistry.DialogueSpecificListeners["on_initialized"][dialogueId] = new List<Action<CurrentDialogue>>();
+            if (!listenerRegistry.DialogueSpecificListeners["on_ready"].ContainsKey(dialogueId))
+                listenerRegistry.DialogueSpecificListeners["on_ready"][dialogueId] = new List<Action<CurrentDialogue>>();
 
-            listenerRegistry.DialogueSpecificListeners["on_initialized"][dialogueId].Add(callback);
+            listenerRegistry.DialogueSpecificListeners["on_ready"][dialogueId].Add(callback);
 
             return this;
         }

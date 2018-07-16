@@ -12,14 +12,14 @@ namespace DialogueSmith.Runtime
         };
 
         public Dictionary<string, List<Action<CurrentDialogue>>> DialogueGeneralListeners = new Dictionary<string, List<Action<CurrentDialogue>>>() {
-            { "on_initializing", new List<Action<CurrentDialogue>>() },
-            { "on_initialized", new List<Action<CurrentDialogue>>() },
+            { "on_initialization", new List<Action<CurrentDialogue>>() },
+            { "on_ready", new List<Action<CurrentDialogue>>() },
             { "on_continued", new List<Action<CurrentDialogue>>() }
         };
 
         public Dictionary<string, Dictionary<string, List<Action<CurrentDialogue>>>> DialogueSpecificListeners = new Dictionary<string, Dictionary<string, List<Action<CurrentDialogue>>>>() {
-            { "on_initializing", new Dictionary<string, List<Action<CurrentDialogue>>>() },
-            { "on_initialized", new Dictionary<string, List<Action<CurrentDialogue>>>() },
+            { "on_initialization", new Dictionary<string, List<Action<CurrentDialogue>>>() },
+            { "on_ready", new Dictionary<string, List<Action<CurrentDialogue>>>() },
             { "on_continued", new Dictionary<string, List<Action<CurrentDialogue>>>() }
         };
 
