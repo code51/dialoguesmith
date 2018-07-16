@@ -11,11 +11,15 @@ namespace DialogueSmith.Editors.Node
     [Serializable]
     public class DialogueNode : BaseNode
     {
-        public override string Title { get { return "Dialogue Node"; } }
+        public override string Title => (entity.actor != "" && entity.actor != null) ? 
+            entity.actor + "'s" : 
+            (NodeEditor.Instance.CurrentTree.main_actor != "" && NodeEditor.Instance.CurrentTree.main_actor != null ? NodeEditor.Instance.CurrentTree.main_actor + "'s" : "Dialogue Node");
         public DialogueEntity entity;
         public Rect startRect;
         public Rect endRect;
         public int textIndex = 0;
+        public bool actorAvailability = false;
+        protected bool HasActor => (entity.actor != "" && entity.actor != null) || actorAvailability;
 
         protected Rect textLeft;
         protected Rect textRight;
@@ -24,7 +28,8 @@ namespace DialogueSmith.Editors.Node
             { "text_right", Rect.zero },
             { "remove_alt_text", Rect.zero },
             { "add_alt_text", Rect.zero },
-            { "text_continuity_toggle", Rect.zero }
+            { "text_continuity_toggle", Rect.zero },
+            { "remove_actor", Rect.zero }
         };
         protected Rect originalRect;
 
@@ -107,62 +112,97 @@ namespace DialogueSmith.Editors.Node
             return GetAbsoluteRect(name).Contains(position);
         }
 
-        public override void DrawUpdate()
+        public override void DrawUpdate(NodeEditor editor)
         {
-            base.DrawUpdate();
+            base.DrawUpdate(editor);
+
+            float heightOffset = 3f;
 
             options = new List<KeyValuePair<Rect, OptionEntity>>();
 
-            if (!NodeEditor.Instance.CurrentTree.IsConnected(entity))
-                GUI.DrawTexture(startRect = new Rect(4f, 3f, 10f, 10f), FileManager.Instance.LoadTexture("redlight.png"));
+            if (!editor.CurrentTree.IsConnected(entity))
+                GUI.DrawTexture(startRect = new Rect(4f, heightOffset, 10f, 10f), FileManager.Instance.LoadTexture("redlight.png"));
             else
-                GUI.DrawTexture(startRect = new Rect(4f, 3f, 10f, 10f), FileManager.Instance.LoadTexture("bluelight.png"));
+                GUI.DrawTexture(startRect = new Rect(4f, heightOffset, 10f, 10f), FileManager.Instance.LoadTexture("bluelight.png"));
 
             if (entity.options.Count == 0) {
-                if (!NodeEditor.Instance.CurrentTree.IsExtended(entity))
-                    GUI.DrawTexture(endRect = new Rect(200f, 3f, 10f, 10f), FileManager.Instance.LoadTexture("greenlight.png"));
+                if (!editor.CurrentTree.IsExtended(entity))
+                    GUI.DrawTexture(endRect = new Rect(200f, heightOffset, 10f, 10f), FileManager.Instance.LoadTexture("greenlight.png"));
                 else
-                    GUI.DrawTexture(endRect = new Rect(200f, 3f, 10f, 10f), FileManager.Instance.LoadTexture("bluelight.png"));
+                    GUI.DrawTexture(endRect = new Rect(200f, heightOffset, 10f, 10f), FileManager.Instance.LoadTexture("bluelight.png"));
             }
 
-            //entity.id = base.AddTextInput("Id", entity.id);
-            string currentId = entity.id;
-            EditorGUILayout.LabelField("Id", EditorStyles.boldLabel);
-            entity.id = EditorGUILayout.TextField(entity.id);
+            if (editor.ShowIds) {
+                string currentId = entity.id;
+                EditorGUILayout.LabelField("Id", EditorStyles.boldLabel);
+                entity.id = EditorGUILayout.TextField(entity.id);
+                if (currentId != entity.id)
+                    editor.RenameDialogueId(currentId, entity.id);
 
-            if (currentId != entity.id)
-                NodeEditor.Instance.RenameDialogueId(currentId, entity.id);
+                heightOffset += 36f;
+            }
+
+            heightOffset += 21f;
+
+            if ((entity.actor != "" && entity.actor != null) || actorAvailability) {
+                EditorGUILayout.LabelField("Actor", EditorStyles.boldLabel);
+                string originalActor = entity.actor;
+                entity.actor = EditorGUILayout.TextField(entity.actor);
+                this.AddAction(new Rect(200f, heightOffset, 10f, 10f), "cross.png", () => {
+                    entity.actor = "";
+                    actorAvailability = false;
+                    ResetSize();
+                    editor.ActorsUpdate();
+                });
+                //GUI.DrawTexture(rects["remove_actor"] = new Rect(45f, heightOffset, 10f, 10f), FileManager.Instance.LoadTexture("cross.png"));
+                heightOffset += 36f;
+
+                if (originalActor != entity.actor)
+                    editor.ActorsUpdate();
+            }
 
             EditorStyles.textField.wordWrap = true;
-            EditorGUILayout.LabelField("Text" + (entity.texts.Count > 1 ? " #" + (textIndex + 1) : ""), EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Text" + (entity.texts.Count > 1 ? " " + (textIndex + 1) + "/" + entity.texts.Count : ""), EditorStyles.boldLabel);
             string originalText = entity.texts[textIndex];
 
             entity.texts[textIndex] = EditorGUILayout.TextArea(entity.texts[textIndex], GUILayout.MinHeight(70f));
 
             if ((originalText != entity.texts[textIndex] && entity.texts[textIndex].Contains("{")) || 
                 (originalText.Contains("{") && !entity.texts[textIndex].Contains("{")))
-                NodeEditor.Instance.VariableUpdates();
+                editor.VariablesUpdate();
 
-            GUI.DrawTexture(rects["add_alt_text"] = new Rect(200f, 60f, 10f, 10f), FileManager.Instance.LoadTexture("plus.png"));
+            AddAction(new Rect(200f, heightOffset, 10f, 10f), "plus.png", () => {
+                entity.texts.Add("");
+                textIndex = entity.texts.Count - 1;
+            });
+            //GUI.DrawTexture(rects["add_alt_text"] = new Rect(200f, heightOffset, 10f, 10f), FileManager.Instance.LoadTexture("plus.png"));
 
             if (entity.texts.Count > 1) {
-                GUI.DrawTexture(rects["text_left"] = new Rect(170f, 60f, 10f, 10f), FileManager.Instance.LoadTexture("left_arrow.png"));
-                GUI.DrawTexture(rects["text_right"] = new Rect(185f, 60f, 10f, 10f), FileManager.Instance.LoadTexture("right_arrow.png"));
+                AddAction(new Rect(170f, heightOffset, 10f, 10f), "left_arrow.png", () => {
+                    textIndex = textIndex == 0 ? entity.texts.Count - 1 : textIndex - 1;
+                });
 
-                if (entity.textContinuity)
-                    GUI.DrawTexture(rects["text_continuity_toggle"] = new Rect(153f, 57f, 15f, 15f), FileManager.Instance.LoadTexture("repeat.png"));
-                else
-                    GUI.DrawTexture(rects["text_continuity_toggle"] = new Rect(153f, 57f, 15f, 15f), FileManager.Instance.LoadTexture("random.png"));
+                AddAction(new Rect(185f, heightOffset, 10f, 10f), "right_arrow.png", () => {
+                    textIndex = textIndex == (entity.texts.Count - 1) ? 0 : textIndex + 1;
+                });
+
+                AddAction(new Rect(153f, heightOffset -2f, 13f, 13f), entity.textContinuity ? "repeat.png" : "random.png", () => {
+                    entity.textContinuity = !entity.textContinuity;
+                });
 
                 if (textIndex != 0) {
-                    GUI.DrawTexture(rects["remove_alt_text"] = new Rect(140f, 60f, 10f, 10f), FileManager.Instance.LoadTexture("cross.png"));
+                    AddAction(new Rect(140f, heightOffset, 10f, 10f), "cross.png", () => {
+                        entity.texts.Remove(entity.texts[textIndex]);
+                        textIndex = Mathf.Clamp(textIndex - 1, 0, textIndex);
+                    });
+                    //GUI.DrawTexture(rects["remove_alt_text"] = new Rect(140f, heightOffset, ;10f, 10f), FileManager.Instance.LoadTexture("cross.png"));
                 }
             }
 
             int i = 1;
 
-            float height = 150f;
-            float offset = 36f;
+            float height = heightOffset + 90f;
+            float heightIncrement = 36f;
 
             entity.options.ForEach(option => {
                 EditorGUILayout.LabelField("Option #" + i);
@@ -172,10 +212,17 @@ namespace DialogueSmith.Editors.Node
 
                 option.id = entity.id + "." + option.id.Split('.')[1];
 
-                if (!NodeEditor.Instance.CurrentTree.IsOptionExtended(option))
+                if (!editor.CurrentTree.IsOptionExtended(option))
                     GUI.DrawTexture(rect, FileManager.Instance.LoadTexture("greenlight.png"));
                 else
                     GUI.DrawTexture(rect, FileManager.Instance.LoadTexture("bluelight.png"));
+
+                //if (!editor.CurrentTree.IsOptionExtended(option))
+                    AddAction(new Rect(185f, height, 10f, 10f), "cross.png", () => {
+                        editor.CurrentTree.ClearOptionConnection(option.id);
+                        entity.options.Remove(option);
+                        ResetSize();
+                    });
 
                 string optionOriginalText = option.text ?? "";
 
@@ -185,9 +232,9 @@ namespace DialogueSmith.Editors.Node
 
                 if ((optionOriginalText != option.text && option.text.Contains("{")) ||
                 (optionOriginalText.Contains("{") && !option.text.Contains("{")))
-                    NodeEditor.Instance.VariableUpdates();
+                    editor.VariablesUpdate();
 
-                height += offset;
+                height += heightIncrement;
 
                 i++;
             });

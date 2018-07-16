@@ -17,6 +17,8 @@ namespace DialogueSmith.Entities
         public RelationDictionary dialogue_relations = new RelationDictionary();
         public RelationDictionary option_relations = new RelationDictionary();
         public VariableDictionary variables = new VariableDictionary();
+        public List<string> actors = new List<string>();
+        public string main_actor;
 
         public void SetInitialDialogue(DialogueEntity dialogue)
         {

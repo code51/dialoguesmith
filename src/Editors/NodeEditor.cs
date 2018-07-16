@@ -20,6 +20,7 @@ namespace DialogueSmith.Editors
         public DialogueTreeEntity CurrentTree;
         public string OriginalName = "";
         public DialogueTreeNode dialogueTreeNode;
+        public bool ShowIds = false;
 
         protected List<DialogueNode> originalNodes = new List<DialogueNode>();
         protected List<DialogueNode> nodes = new List<DialogueNode>();
@@ -49,6 +50,8 @@ namespace DialogueSmith.Editors
 
             scrollPos = EditorGUILayout.BeginScrollView(scrollPos, true, true);
 
+            mousePos += scrollPos;
+
             if (!treeInitialized) {
                 DialogueManager(e);
             } else {
@@ -61,7 +64,26 @@ namespace DialogueSmith.Editors
             EditorGUILayout.EndScrollView();
         }
 
-        public void VariableUpdates()
+        public void ActorsUpdate()
+        {
+            CurrentTree.actors = new List<string>();
+
+            nodes.ForEach(node => {
+                if (node.entity.actor != "" && node.entity.actor != null) {
+                    if (!CurrentTree.actors.Contains(node.entity.actor))
+                        CurrentTree.actors.Add(node.entity.actor);
+                }
+            });
+
+            if (CurrentTree.actors.Count == 0)
+                CurrentTree.main_actor = null;
+            else if (!CurrentTree.actors.Contains(CurrentTree.main_actor))
+                CurrentTree.main_actor = null;
+
+            dialogueTreeNode.ResetSize();
+        }
+
+        public void VariablesUpdate()
         {
             Dictionary<string, string> originals = CurrentTree.variables.data;
             CurrentTree.variables = new VariableDictionary();
@@ -94,28 +116,10 @@ namespace DialogueSmith.Editors
 
             GUI.FocusControl(null);
 
+            dialogueTreeNode.ClickedUpdate(mousePos);
+
             foreach (var node in nodes) {
-                if (node.IsClicked("text_left", mousePos)) {
-                    node.textIndex = node.textIndex == 0 ? node.entity.texts.Count - 1 : node.textIndex - 1;
-                }
-
-                if (node.IsClicked("text_right", mousePos)) {
-                    node.textIndex = node.textIndex == (node.entity.texts.Count - 1) ? 0 : node.textIndex + 1;
-                }
-
-                if (node.IsClicked("add_alt_text", mousePos)) {
-                    node.entity.texts.Add("");
-                    node.textIndex = node.entity.texts.Count - 1;
-                }
-
-                if (node.IsClicked("remove_alt_text", mousePos)) {
-                    node.entity.texts.Remove(node.entity.texts[node.textIndex]);
-                    node.textIndex = Mathf.Clamp(node.textIndex - 1, 0, node.textIndex);
-                }
-
-                if (node.IsClicked("text_continuity_toggle", mousePos)) {
-                    node.entity.textContinuity = !node.entity.textContinuity;
-                }
+                node.ClickedUpdate(mousePos);
             }
         }
 
@@ -181,7 +185,6 @@ namespace DialogueSmith.Editors
             CurrentTree = null;
             treeInitialized = false;
             dialogueTreeNode = null;
-            Debug.Log("WHAT");
             nodes = new List<DialogueNode>();
             originalNodes = new List<DialogueNode>();
         }
@@ -292,10 +295,7 @@ namespace DialogueSmith.Editors
 
                         if (option.Value != null) {
                             if (!CurrentTree.IsOptionExtended(option.Value)) {
-                                menu.AddItem(new GUIContent("Remove option"), false, delegate {
-                                    RemoveOption(node, option.Value);
-                                    node.ResetSize();
-                                });
+                                
                             } else {
                                 menu.AddItem(new GUIContent("Disconnect"), false, delegate {
                                     ClearOptionConnection(option.Value);
@@ -310,6 +310,26 @@ namespace DialogueSmith.Editors
                             //        node.textIndex = Mathf.Clamp(node.textIndex - 1, 0, node.textIndex);
                             //    });
                             //}
+
+                            if (!node.actorAvailability) {
+                                if (CurrentTree.actors.Count == 0) {
+                                    menu.AddItem(new GUIContent("Set actor"), false, delegate {
+                                        node.actorAvailability = true;
+                                    });
+                                } else {
+                                    menu.AddItem(new GUIContent("Set actor/New..."), false, delegate {
+                                        node.actorAvailability = true;
+                                    });
+
+                                    CurrentTree.actors.ForEach(actor => {
+                                        menu.AddItem(new GUIContent("Set actor/" + actor), false, delegate {
+                                            node.actorAvailability = true;
+                                            node.entity.actor = actor;
+                                            ActorsUpdate();
+                                        });
+                                    });
+                                }
+                            }
 
                             if (!CurrentTree.IsExtended(node.entity)) {
                                 menu.AddItem(new GUIContent("Add option"), false, delegate {
@@ -384,12 +404,7 @@ namespace DialogueSmith.Editors
 
             IsScoping = true;
         }
-
-        protected void RemoveOption(DialogueNode dialogue, OptionEntity option)
-        {
-            dialogue.entity.options.Remove(option);
-        }
-
+        
         //protected void CreateOptionResponseDialogue(DialogueNode origin, KeyValuePair<int, OptionEntity> option)
         //{
         //    var dialogue = new DialogueEntity() {
@@ -447,7 +462,7 @@ namespace DialogueSmith.Editors
             CurrentTree.RemoveRelations(dialogue.entity.id);
             nodes.Remove(dialogue);
 
-            VariableUpdates();
+            VariablesUpdate();
         }
 
         protected void ExtendDialogue(DialogueNode origin)
@@ -475,7 +490,7 @@ namespace DialogueSmith.Editors
             int i = 0;
 
             dialogueTreeNode.Window = GUILayout.Window(i, dialogueTreeNode.Window, delegate {
-                dialogueTreeNode.DrawUpdate();
+                dialogueTreeNode.DrawUpdate(this);
                 GUI.DragWindow();
             }, dialogueTreeNode.Title);
 
@@ -484,7 +499,7 @@ namespace DialogueSmith.Editors
 
             foreach (var node in nodes) {
                 nodes[i-1].Window = GUILayout.Window(i, node.Window, delegate {
-                    node.DrawUpdate();
+                    node.DrawUpdate(this);
                     GUI.DragWindow();
                 }, node.Title);
 
@@ -625,8 +640,6 @@ namespace DialogueSmith.Editors
 
         protected override void LoadTree(string path)
         {
-            //string path = EditorUtility.OpenFilePanel("", EditorPrefs.GetString(SETTING_DIALOGUES_PATH), "json");
-
             if (path == "")
                 return;
 
@@ -645,6 +658,8 @@ namespace DialogueSmith.Editors
             OriginalName = CurrentTree.name;
 
             treeInitialized = true;
+
+            Repaint();
 
             GUI.FocusControl(null);
         }
@@ -666,6 +681,7 @@ namespace DialogueSmith.Editors
             nodes.ForEach(node => {
                 node.entity.window.x = node.Window.x;
                 node.entity.window.y = node.Window.y;
+                node.entity.window.width = node.Window.width;
 
                 dialogues.Add(node.entity);
             });

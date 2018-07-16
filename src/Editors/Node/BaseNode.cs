@@ -2,6 +2,8 @@
 using DialogueSmith.Entities;
 using UnityEditor;
 using UnityEngine;
+using System.Collections.Generic;
+using DialogueSmith.Managers;
 
 namespace DialogueSmith.Editors.Node
 {
@@ -13,11 +15,33 @@ namespace DialogueSmith.Editors.Node
         public bool IsParentToAttachedNode;
         public BaseNode ParentNode;
         public abstract string Title { get; }
+        protected Dictionary<Rect, Action> actions = new Dictionary<Rect, Action>();
+
         //public string Title { get { return Entity == null ? "" : Entity.window.title; } }
         //public abstract BaseEntity Entity { get; }
 
-        public virtual void DrawUpdate()
+        public virtual void DrawUpdate(NodeEditor editor)
         {
+            this.actions = new Dictionary<Rect, Action>();
+        }
+
+        protected void AddAction(Rect rect, string texture, Action action)
+        {
+            this.actions.Add(rect, action);
+
+            GUI.DrawTexture(rect, FileManager.Instance.LoadTexture(texture));
+        }
+
+        public void ClickedUpdate(Vector2 mousePosition)
+        {
+            foreach (var item in actions) {
+                Rect rect = item.Key;
+                rect.x += Window.x;
+                rect.y += Window.y;
+
+                if (rect.Contains(mousePosition))
+                    item.Value();
+            }
         }
 
         public Vector2 GetStartPoint()

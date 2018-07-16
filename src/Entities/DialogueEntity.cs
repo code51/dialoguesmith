@@ -8,6 +8,7 @@ namespace DialogueSmith.Entities
     public class DialogueEntity
     {
         public string id;
+        public string actor;
         public List<string> texts = new List<string>() { "" };
         public bool textContinuity = true;
         public WindowEntity window = new WindowEntity();
