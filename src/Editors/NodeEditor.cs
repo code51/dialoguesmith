@@ -28,12 +28,10 @@ namespace DialogueSmith.Editors
         protected bool treeInitialized = false;
         protected Vector2 scrollPos;
         protected bool needScroll = false;
-
         protected float viewWidth = 1024f;
         protected float viewHeight = 768f;
         protected static NodeEditor instance;
         protected KeyValuePair<DialogueNode, OptionEntity> activeConnection = new KeyValuePair<DialogueNode, OptionEntity>();
-
         protected Vector2 lastDragPosition;
 
         [MenuItem("Window/Dialoguesmith")]
@@ -359,12 +357,10 @@ namespace DialogueSmith.Editors
                         
                         } else {
 
-                            //if (node.entity.texts.Count > 1) {
-                            //    menu.AddItem(new GUIContent("Use alt. texts for continuity"), false, delegate {
-                            //        node.entity.texts.Remove(node.entity.texts[node.textIndex]);
-                            //        node.textIndex = Mathf.Clamp(node.textIndex - 1, 0, node.textIndex);
-                            //    });
-                            //}
+                            menu.AddItem(new GUIContent(node.showId ? "Hide Id" : "Show Id"), false, delegate {
+                                node.showId = !node.showId;
+                                node.ResetSize();
+                            });
 
                             if (!node.actorAvailability) {
                                 if (CurrentTree.actors.Count == 0) {

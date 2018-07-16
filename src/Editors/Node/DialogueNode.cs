@@ -11,9 +11,13 @@ namespace DialogueSmith.Editors.Node
     [Serializable]
     public class DialogueNode : BaseNode
     {
-        public override string Title => (entity.actor != "" && entity.actor != null) ? 
-            entity.actor + "'s" : 
-            (NodeEditor.Instance.CurrentTree.main_actor != "" && NodeEditor.Instance.CurrentTree.main_actor != null ? NodeEditor.Instance.CurrentTree.main_actor + "'s" : "Dialogue Node");
+        public override string Title
+        {
+            get {
+                return "[" + entity.id + "] " + ((entity.actor != "" && entity.actor != null) ? entity.actor + "'s": (NodeEditor.Instance.CurrentTree.main_actor != "" && NodeEditor.Instance.CurrentTree.main_actor != null ? NodeEditor.Instance.CurrentTree.main_actor + "'s" : ""));
+            }
+        }
+        public bool showId = false;
         public DialogueEntity entity;
         public Rect startRect;
         public Rect endRect;
@@ -132,7 +136,7 @@ namespace DialogueSmith.Editors.Node
                     GUI.DrawTexture(endRect = new Rect(200f, heightOffset, 10f, 10f), FileManager.Instance.LoadTexture("bluelight.png"));
             }
 
-            if (editor.ShowIds) {
+            if (showId) {
                 string currentId = entity.id;
                 EditorGUILayout.LabelField("Id", EditorStyles.boldLabel);
                 entity.id = EditorGUILayout.TextField(entity.id);
