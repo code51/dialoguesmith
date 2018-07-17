@@ -27,7 +27,7 @@ Edit your dialogue tree through editor. access through Window/Dialoguesmith menu
   - while a builder can have more dialogue specific listeners. this can be used for more sophisticated dialogue building.
 
 # Implementations
-There're multiple ways to implement the use of your dialogues in the scene. while the major feature of this package is mostly about editing a dialogue tree, other being a convenience to use them in the code. Sample scene can be found at ```/samples/sample1/scene```
+There're multiple ways to implement the use of your dialogues in the scene. while the major feature of this package is mostly about editing a dialogue tree, other being a convenience to use them in the code. Example can be found at ```/samples/sample1```
 
 ## Runtime factory
 A factory derived from AbstractRuntimeBuilder to help creating a runtime, including setting up the listeners to number of events
