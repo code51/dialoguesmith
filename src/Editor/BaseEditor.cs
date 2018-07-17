@@ -6,9 +6,9 @@ using DialogueSmith.Entities;
 using DialogueSmith.Helper;
 using UnityEditor;
 using UnityEngine;
-using DialogueSmith.Editors.Node;
+using DialogueSmith.Editor.Node;
 
-namespace DialogueSmith.Editors
+namespace DialogueSmith.Editor
 {
     public abstract class BaseEditor : EditorWindow
     {

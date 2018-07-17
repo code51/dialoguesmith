@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace DialogueSmith.Editors
+namespace DialogueSmith.Editor
 {
     public class TextureLoader : Singleton<TextureLoader>
     {

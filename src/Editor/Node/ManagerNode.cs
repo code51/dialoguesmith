@@ -5,7 +5,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace DialogueSmith.Editors.Node
+namespace DialogueSmith.Editor.Node
 {
     public class ManagerNode : BaseNode
     {

@@ -5,7 +5,7 @@ using DialogueSmith.Helper;
 using UnityEditor;
 using UnityEngine;
 
-namespace DialogueSmith.Editors.Node
+namespace DialogueSmith.Editor.Node
 {
     [Serializable]
     public class DialogueNode : BaseNode

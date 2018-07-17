@@ -2,7 +2,7 @@
 using DialogueSmith.Entities;
 using DialogueSmith.Utility;
 
-namespace DialogueSmith.Editors.Node
+namespace DialogueSmith.Editor.Node
 {
     [Serializable]
     public class NodeDictionary : BaseSerializableDictionary<string, DialogueNode>

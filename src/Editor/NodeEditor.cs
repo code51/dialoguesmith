@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using DialogueSmith.Entities;
-using DialogueSmith.Editors.Node;
+using DialogueSmith.Editor.Node;
 using DialogueSmith.Helper;
 using UnityEditor;
 using UnityEngine;
 using UnityEditor.SceneManagement;
 
-namespace DialogueSmith.Editors
+namespace DialogueSmith.Editor
 {
     [Serializable]
     public class NodeEditor : BaseEditor
