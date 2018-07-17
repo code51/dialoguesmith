@@ -1,5 +1,5 @@
 # Dialoguesmith
-A simple unity engine dialogue editor
+A simple dialogue tree editor for unity
 
 # Installation
 clone the project into your /Assets folder.
@@ -8,12 +8,24 @@ git clone https://github.com/code51/dialoguesmith
 ```
 
 # Features
-- dialogue tree editor
-- multi-texts
-- actor
-- variables
-- implementation through factory and builder
-- tons of listeners
+### dialogue tree editor
+Edit your dialogue tree through editor. access through Window/Dialoguesmith menu.
+### multi-texts
+- A dialogue can have more than one text reserves which can be used for
+  - a runthroough. a convenience without needing to create many dialogues for a single actor.
+  - a single randomly picked text
+### actor
+- a tree can have many dialogue actor
+### variables
+- automatically list the variables found inside the texts/option texts under format ```{variable_name}```
+### implementation through factory and builder
+- a factory/builder to help with the creation of the dialogue runtime. sample can be found in ```samples/sample1/DialogueUIController.cs```
+### tons of listeners
+- listeners to listen on number of dialogue events
+  - a factory only have a basic listeners for tree begin, finished, dialogue ready etc. this is used to help with UI building.
+  - while a builder can have more dialogue specific listeners. this can be used for more sophisticated dialogue building.
+
+![image](https://user-images.githubusercontent.com/5824953/42807569-c12d9f88-89e3-11e8-8332-bf303a85e6d4.png)
 
 # Implementations
 There're multiple ways to implement the use of your dialogues in the scene. while the major feature of this package is mostly about editing a dialogue tree, other being a convenience to use them in the code. Sample scene can be found at ```/samples/sample1/scene```
