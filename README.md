@@ -2,7 +2,7 @@
 A simple dialogue tree editor for unity
 
 # Installation
-clone the project into your /Assets folder.
+clone the project into your ```/Assets``` folder.
 ```
 git clone https://github.com/code51/dialoguesmith
 ```
@@ -13,10 +13,11 @@ git clone https://github.com/code51/dialoguesmith
 Edit your dialogue tree through editor. access through Window/Dialoguesmith menu.
 ### multi-texts
 - A dialogue can have more than one text reserves which can be used for
-  - a runthroough. a convenience without needing to create many dialogues for a single actor.
+  - a complete runthrough. a convenience without needing to create many dialogues for a single actor.
   - a single randomly picked text
 ### actor
 - a tree can have many dialogue actor
+- it's not necessarily a name of the actor. it can be an id as a reference to your game actor.
 ### variables
 - automatically list the variables found inside the texts/option texts under format ```{variable_name}```
 ### implementation through factory and builder
