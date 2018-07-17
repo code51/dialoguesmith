@@ -8,6 +8,7 @@ git clone https://github.com/code51/dialoguesmith
 ```
 
 # Features
+![image](https://user-images.githubusercontent.com/5824953/42807569-c12d9f88-89e3-11e8-8332-bf303a85e6d4.png)
 ### dialogue tree editor
 Edit your dialogue tree through editor. access through Window/Dialoguesmith menu.
 ### multi-texts
@@ -24,8 +25,6 @@ Edit your dialogue tree through editor. access through Window/Dialoguesmith menu
 - listeners to listen on number of dialogue events
   - a factory only have a basic listeners for tree begin, finished, dialogue ready etc. this is used to help with UI building.
   - while a builder can have more dialogue specific listeners. this can be used for more sophisticated dialogue building.
-
-![image](https://user-images.githubusercontent.com/5824953/42807569-c12d9f88-89e3-11e8-8332-bf303a85e6d4.png)
 
 # Implementations
 There're multiple ways to implement the use of your dialogues in the scene. while the major feature of this package is mostly about editing a dialogue tree, other being a convenience to use them in the code. Sample scene can be found at ```/samples/sample1/scene```
