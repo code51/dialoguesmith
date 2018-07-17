@@ -30,11 +30,6 @@ namespace DialogueSmith.Editors
             ManagerMouseClick(e);
         }
 
-        protected void LoadSettings()
-        {
-            
-        }
-
         protected void ManagerMouseClick(Event e)
         {
             if (!(e.type == EventType.MouseDown && e.button == 0))

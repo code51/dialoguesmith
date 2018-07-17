@@ -8,6 +8,7 @@ using DialogueSmith;
 
 public class DialogueUIController : MonoBehaviour
 {
+    public string resourceLoadPath = "dialogues";
     public TextAsset dialogueTreeText;
     public string dialogueTreeName;
 
@@ -25,7 +26,7 @@ public class DialogueUIController : MonoBehaviour
     private void Start()
     {
         selectionsContainer = container.Find("selections");
-        runtimeFactory = (new RuntimeFactory(new EntityLoader("dialogues")))
+        runtimeFactory = (new RuntimeFactory(new EntityLoader(resourceLoadPath)))
                 .OnDialogueTreeBegin(DialogueTreeBegin)
                 .OnDialogueTreeFinished(DialogueTreeFinished)
                 .OnDialogueReady(DialogueUIUpdate)
@@ -48,6 +49,8 @@ public class DialogueUIController : MonoBehaviour
                     runtime = runtimeFactory.Create(dialogueTreeText);
                 else if (dialogueTreeName != "")
                     runtime = runtimeFactory.Create(dialogueTreeName);
+                else
+                    container.Find("text").GetComponent<Text>().text = "Please specify the json file, or the name of the dialogue tree.";
             }
         }
     }

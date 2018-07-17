@@ -982,8 +982,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d529dd5d3a888674d89ff518c19743d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  resourceLoadPath: dialogues
   dialogueTreeText: {fileID: 0}
-  dialogueTreeName: merchant
+  dialogueTreeName: 
   text: {fileID: 880278237}
   container: {fileID: 1716955671}
   sampleOption: {fileID: 417857824}
