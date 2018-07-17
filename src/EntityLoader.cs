@@ -1,10 +1,11 @@
 ﻿using System.IO;
 using DialogueSmith.Entities;
 using UnityEngine;
+using UnityEditor;
 
 namespace DialogueSmith
 {
-    public class EntityLoader
+    public class EntityLoader : IEntityLoader
     {
         /// <summary>
         /// path relative to the resources folder

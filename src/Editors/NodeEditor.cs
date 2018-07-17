@@ -33,15 +33,59 @@ namespace DialogueSmith.Editors
         protected static NodeEditor instance;
         protected KeyValuePair<DialogueNode, OptionEntity> activeConnection = new KeyValuePair<DialogueNode, OptionEntity>();
         protected Vector2 lastDragPosition;
+        [NonSerialized]
+        public bool MissingPath = false;
+        protected bool missingPathChecking = false;
 
         [MenuItem("Window/Dialoguesmith")]
         public static void ShowEditor()
         {
             instance = EditorWindow.GetWindow<NodeEditor>();
         }
+
+        protected void LoadSettings()
+        {
+            if (Settings == null) {
+                string path = Application.dataPath + "/dialoguesmith-prefs.json";
+
+                if (File.Exists(path)) {
+                    Settings = JsonUtility.FromJson<EditorSettingEntity>(File.ReadAllText(path));
+                } else {
+                    Settings = new EditorSettingEntity();
+                }
+            }
+        }
+
+        protected void HandleMissingVendor()
+        {
+            EditorUtility.DisplayDialog("", "The dialoguesmith folder somehow couldn't be located. Please select the folder. It's necessary to load texture asset etc.", "Ok");
+
+            string path = EditorUtility.OpenFolderPanel("", "Assets", "").Replace("\\", "/");
+
+            if (path == "" || (path != "" && !path.Contains(Application.dataPath))) {
+                if (!EditorUtility.DisplayDialog("", "The folder has to be inside the Assets path. Retry?", "Ok", "No")) {
+                    MissingPath = false;
+                    missingPathChecking = true;
+                }
+            } else {
+                Settings.dialoguesmith_path = path.Replace(Application.dataPath.Replace("\\", "/"), "").Trim('/');
+                SavePreferences();
+                MissingPath = false;
+            }
+        }
         
         protected void OnGUI()
         {
+            LoadSettings();
+
+            if (MissingPath) {
+                HandleMissingVendor();
+                return;
+            }
+
+            if (missingPathChecking)
+                return;
+
             IncreaseScrollView();
 
             Event e = Event.current;
@@ -233,7 +277,7 @@ namespace DialogueSmith.Editors
             }
         }
 
-        protected void Unitialize()
+        protected void Uninitialize()
         {
             CurrentTree = null;
             treeInitialized = false;
@@ -250,27 +294,27 @@ namespace DialogueSmith.Editors
                 } else {
                     GenericMenu menu = new GenericMenu();
 
-                    menu.AddItem(new GUIContent("Editor/New Tree..."), false, delegate {
-                        int result = EditorUtility.DisplayDialogComplex("", "Save this tree first?", "Ok", "Cancel", "No");
+                    //menu.AddItem(new GUIContent("Editor/New Tree..."), false, delegate {
+                    //    int result = EditorUtility.DisplayDialogComplex("", "Save this tree first?", "Ok", "Cancel", "No");
 
-                        if (result != 1) {
-                            if (result == 0)
-                                if (!SaveTree())
-                                    return;
+                    //    if (result != 1) {
+                    //        if (result == 0)
+                    //            if (!SaveTree())
+                    //                return;
 
-                            string[] segments = CurrentTree.name != null ? CurrentTree.name.Split('/') : new string[0];
-                            Unitialize();
+                    //        string[] segments = CurrentTree.name != null ? CurrentTree.name.Split('/') : new string[0];
+                    //        Unitialize();
 
-                            string prefix = "";
+                    //        string prefix = "";
 
-                            if (segments.Length > 1) {
-                                prefix = String.Join("/", segments.Take(segments.Length - 1).ToArray()) + "/";
-                            }
+                    //        if (segments.Length > 1) {
+                    //            prefix = String.Join("/", segments.Take(segments.Length - 1).ToArray()) + "/";
+                    //        }
 
-                            InitializeTree(prefix);
-                            Repaint();
-                        }
-                    });
+                    //        InitializeTree(prefix);
+                    //        Repaint();
+                    //    }
+                    //});
 
                     BuildLoadMenu("Editor/", menu, () => {
                         int result = EditorUtility.DisplayDialogComplex("", "Save this tree first?", "Ok", "Cancel", "No");
@@ -281,6 +325,7 @@ namespace DialogueSmith.Editors
                                     return false;
                             }
 
+                            Uninitialize();
                             return true;
                         }
 
@@ -299,7 +344,7 @@ namespace DialogueSmith.Editors
                         if (result == 1)
                             return;
 
-                        Unitialize();
+                        Uninitialize();
                     });
                     
                     menu.AddSeparator("");
@@ -637,7 +682,7 @@ namespace DialogueSmith.Editors
             InitializeTree("");
         }
 
-        protected void InitializeTree(string prefix)
+        protected override void InitializeTree(string category)
         {
             if (treeInitialized)
                 return;
@@ -646,8 +691,8 @@ namespace DialogueSmith.Editors
 
             CurrentTree = new DialogueTreeEntity();
 
-            if (prefix != "")
-                CurrentTree.name = prefix;
+            if (category != "")
+                CurrentTree.name = category.TrimEnd('/') + "/";
 
             // start dialogue node
             var node = (new DialogueTreeNode()).Initialize(CurrentTree);
@@ -723,7 +768,7 @@ namespace DialogueSmith.Editors
 
             CurrentTree.dialogues = dialogues;
 
-            string dialoguePath = EditorPrefs.GetString(SETTING_DIALOGUES_PATH);
+            string dialoguePath = Application.dataPath + "/" + Settings.dialogues_path;
 
             string contents = JsonUtility.ToJson(CurrentTree);
 

@@ -9,15 +9,15 @@ namespace DialogueSmith.Runtime
     public class RuntimeFactory : AbstractRuntimeBuilder<RuntimeFactory>
     {
         protected override RuntimeFactory Instance => this;
-        protected EntityLoader entityLoader;
+        protected IEntityLoader entityLoader;
 
-        public RuntimeFactory(EntityLoader entityLoader) : base(new System.Random())
+        public RuntimeFactory(IEntityLoader entityLoader) : base(new System.Random())
         {
             this.entityLoader = entityLoader;
             this.variables = new Dictionary<string, string>();
         }
 
-        public RuntimeFactory(EntityLoader entityLoader, System.Random random) : base(new System.Random())
+        public RuntimeFactory(IEntityLoader entityLoader, System.Random random) : base(new System.Random())
         {
             this.entityLoader = entityLoader;
             this.variables = new Dictionary<string, string>();

@@ -25,6 +25,11 @@ namespace DialogueSmith.Editors.Node
             this.actions = new Dictionary<Rect, Action>();
         }
 
+        public virtual void DrawUpdate(BaseEditor editor)
+        {
+            this.actions = new Dictionary<Rect, Action>();
+        }
+
         protected void AddAction(Rect rect, string texture, Action action)
         {
             this.actions.Add(rect, action);
@@ -54,28 +59,37 @@ namespace DialogueSmith.Editors.Node
             return new Vector2(Window.x + Window.width - 8f, Window.y + 7f);
         }
 
-        public virtual string AddTextInput(string label, string value)
+        public virtual string TextInput(string label, string value, string description)
+        {
+            EditorGUILayout.LabelField(new GUIContent(label, description), EditorStyles.boldLabel);
+            if (description != null) {
+                //EditorGUILayout.LabelField(description, EditorStyles.wordWrappedLabel);
+            }
+            return EditorGUILayout.TextField(value);
+        }
+
+        public virtual string TextInputLine(string label, string value)
         {
             Vector2 dimensions = GUI.skin.label.CalcSize(new GUIContent(label));
             EditorGUIUtility.labelWidth = dimensions.x;
             return EditorGUILayout.TextField(label, value);
         }
 
-        public virtual string AddOptionInput(string label, string value)
+        public virtual string OptionInputLine(string label, string value)
         {
             Vector2 dimensions = GUI.skin.label.CalcSize(new GUIContent(label));
             EditorGUIUtility.labelWidth = dimensions.x;
             return EditorGUILayout.TextField(label, value, GUILayout.Width(120f));
         }
 
-        public virtual bool AddToggleInput(string label, bool value)
+        public virtual bool ToggleInputLine(string label, bool value)
         {
             Vector2 dimensions = GUI.skin.label.CalcSize(new GUIContent(label));
             EditorGUIUtility.labelWidth = dimensions.x;
             return EditorGUILayout.Toggle(label, value);
         }
 
-        public virtual int AddIntegerInput(string label, int value)
+        public virtual int IntegerInputLine(string label, int value)
         {
             Vector2 dimensions = GUI.skin.label.CalcSize(new GUIContent(label));
             EditorGUIUtility.labelWidth = dimensions.x;

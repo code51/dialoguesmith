@@ -14,7 +14,7 @@ namespace DialogueSmith.Editors.Node
         public override string Title
         {
             get {
-                return "[" + entity.id + "] " + ((entity.actor != "" && entity.actor != null) ? entity.actor + "'s": (NodeEditor.Instance.CurrentTree.main_actor != "" && NodeEditor.Instance.CurrentTree.main_actor != null ? NodeEditor.Instance.CurrentTree.main_actor + "'s" : ""));
+                return "[" + entity.id + "] " + ((entity.actor != "" && entity.actor != null) ? entity.actor: (NodeEditor.Instance.CurrentTree.main_actor != "" && NodeEditor.Instance.CurrentTree.main_actor != null ? NodeEditor.Instance.CurrentTree.main_actor : ""));
             }
         }
         public bool showId = false;

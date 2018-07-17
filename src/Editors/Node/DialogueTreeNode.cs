@@ -60,7 +60,7 @@ namespace DialogueSmith.Editors.Node
                 EditorGUILayout.LabelField("Variables                       Default", EditorStyles.boldLabel);
 
                 foreach (var key in entity.variables.data.Keys.ToList()) {
-                    entity.variables.data[key] = base.AddTextInput(key, entity.variables.data[key]);
+                    entity.variables.data[key] = base.TextInputLine(key, entity.variables.data[key]);
                 }
             }
         }
