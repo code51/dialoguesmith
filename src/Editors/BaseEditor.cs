@@ -70,7 +70,7 @@ namespace DialogueSmith.Editors
                 List<string> segments = name.Split('/').ToList();
                 segments.Remove(name.Split('/')[name.Split('/').Length - 1]);
 
-                string category = String.Join("/", segments);
+                string category = String.Join("/", segments.ToArray());
 
                 if (!categories.Contains(category)) {
                     menu.AddItem(new GUIContent(prefix + "Tree/" + category + "/Create New..."), false, delegate {

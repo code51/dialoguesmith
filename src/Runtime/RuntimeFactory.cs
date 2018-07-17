@@ -8,7 +8,7 @@ namespace DialogueSmith.Runtime
 {
     public class RuntimeFactory : AbstractRuntimeBuilder<RuntimeFactory>
     {
-        protected override RuntimeFactory Instance => this;
+        protected override RuntimeFactory Instance { get { return this; } }
         protected IEntityLoader entityLoader;
 
         public RuntimeFactory(IEntityLoader entityLoader) : base(new System.Random())

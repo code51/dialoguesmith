@@ -7,8 +7,8 @@ namespace DialogueSmith.Runtime
 {
     public class DialogueRuntime
     {
-        public bool IsRunning => currentDialogue != null;
-        public DialogueTreeEntity Tree => dialogueTree;
+        public bool IsRunning { get { return currentDialogue != null; } }
+        public DialogueTreeEntity Tree { get { return dialogueTree; } }
 
         protected DialogueTreeEntity dialogueTree;
         protected Dictionary<string, string> variables;

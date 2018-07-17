@@ -8,8 +8,8 @@ namespace DialogueSmith.Runtime
 {
     public class CurrentDialogue
     {
-        public DialogueEntity Origin => dialogue;
-        public string Id => dialogue.id;
+        public DialogueEntity Origin { get { return dialogue; } }
+        public string Id { get { return dialogue.id; } }
         //public string Text { get { return text; } }
         public string Text
         {
@@ -20,7 +20,7 @@ namespace DialogueSmith.Runtime
 
         public Dictionary<string, string> Variables { get { return new Dictionary<string, string>(variables); } }
         public List<OptionSelection> Selections { get { return selections; } }
-        public string Actor => dialogue.actor != null && dialogue.actor != "" ? dialogue.actor : (tree.main_actor != null && tree.main_actor != "" ? tree.main_actor : null);
+        public string Actor { get { return dialogue.actor != null && dialogue.actor != "" ? dialogue.actor : (tree.main_actor != null && tree.main_actor != "" ? tree.main_actor : null); } }
 
         /// <summary>
         /// Whether this dialogue is extended
@@ -30,8 +30,7 @@ namespace DialogueSmith.Runtime
         /// <summary>
         /// Dialogue is nearing the end
         /// </summary>
-        public bool IsEnding => !IsExtended && !HasSelections && currentTextIndex == texts.Count - 1;
-
+        public bool IsEnding { get { return !IsExtended && !HasSelections && currentTextIndex == texts.Count - 1; } }
         /// <summary>
         /// Whether this dialogue has available options
         /// </summary>

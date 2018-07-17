@@ -23,7 +23,7 @@ namespace DialogueSmith.Editors.Node
         public Rect endRect;
         public int textIndex = 0;
         public bool actorAvailability = false;
-        protected bool HasActor => (entity.actor != "" && entity.actor != null) || actorAvailability;
+        protected bool HasActor { get { return (entity.actor != "" && entity.actor != null) || actorAvailability; } }
 
         protected Rect textLeft;
         protected Rect textRight;

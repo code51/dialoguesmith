@@ -7,7 +7,7 @@ namespace DialogueSmith.Runtime
 {
     public class RuntimeBuilder : AbstractRuntimeBuilder<RuntimeBuilder>
     {
-        protected override RuntimeBuilder Instance => this;
+        protected override RuntimeBuilder Instance { get { return this; } }
 
         protected DialogueTreeEntity dialogueTree;
 
