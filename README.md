@@ -7,8 +7,16 @@ clone the project into your /Assets folder.
 git clone https://github.com/code51/dialoguesmith
 ```
 
+# Features
+- dialogue tree editor
+- multi-texts
+- actor
+- variables
+- implementation through factory and builder
+- tons of listeners
+
 # Implementations
-there're multiple ways to implement the use of your dialogues in the scene. while the major feature of this package is mostly about editing a dialogue tree, other being a convenience to use them in the code.
+There're multiple ways to implement the use of your dialogues in the scene. while the major feature of this package is mostly about editing a dialogue tree, other being a convenience to use them in the code. Sample scene can be found at ```/samples/sample1/scene```
 
 ## Runtime factory
 A factory derived from AbstractRuntimeBuilder to help creating a runtime, including setting up the listeners to number of events
@@ -50,7 +58,7 @@ called when an option has been selected.
 
 ### example usages
 #### registry
-```
+```c#
 factory.OnDialogueTreeBegin(HandleDialogueTreeBegin)
 	.OnDialogueTreeFinished(HandleDialogueTreeFinished)
 	.OnDialogueInitialized(HandleDialogueUpdate)
@@ -66,22 +74,22 @@ The dialogue tree ends, when there's no longer dialogue available next.
 
 ### Usage
 create the runtime, with the first dialogue initialization.
-```
+```c#
 DialogueRuntime runtime = factory.Create(dialogueTreeText);
 ```
 or 
-```
+```c#
 DialogueRuntime runtime = factory.Create(dialogueName);
 ```
 
 ## Runtime Builder
 A similar class derived from AbstractRuntimeBuilder to handle more sophisticated cases, introducing more than one overrides for existing methods.
 
-```
+```c#
 RuntimeBuilder builder = factory.CreateBuilder("npc/generic-merchant");
 ```
 
 ### Usage
-```
+```c#
 DialogueRuntime runtime = builder.Build();
 ```
