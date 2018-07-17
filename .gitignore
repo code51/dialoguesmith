@@ -1,2 +1,3 @@
-﻿*.meta
-settings.json
+﻿settings.json
+*.meta
+!samples/**/*.meta

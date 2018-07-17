@@ -345,6 +345,7 @@ namespace DialogueSmith.Editors
                             return;
 
                         Uninitialize();
+                        Repaint();
                     });
                     
                     menu.AddSeparator("");
