@@ -1,7 +1,6 @@
 ﻿using System;
 using DialogueSmith.Runtime;
 using UnityEngine;
-using DialogueSmith.Managers;
 using System.Collections.Generic;
 
 namespace DialogueSmith.Runtime

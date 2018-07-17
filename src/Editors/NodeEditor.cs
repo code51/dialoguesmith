@@ -9,7 +9,6 @@ using DialogueSmith.Helper;
 using UnityEditor;
 using UnityEngine;
 using UnityEditor.SceneManagement;
-using DialogueSmith.Managers;
 
 namespace DialogueSmith.Editors
 {
@@ -490,7 +489,7 @@ namespace DialogueSmith.Editors
 
             List<DialogueNode> scopedNodes = new List<DialogueNode>();
 
-            List<DialogueEntity> dialogues = CurrentTree.FindConnectedDialogues(dialogue.entity, nodes);
+            List<DialogueEntity> dialogues = FindConnectedDialogues(dialogue.entity);
 
             dialogues.ForEach(dlg => {
                 scopedNodes.Add(FindById(dlg.id));
@@ -799,6 +798,40 @@ namespace DialogueSmith.Editors
             AssetDatabase.Refresh();
 
             return true;
+        }
+
+        protected DialogueNode FindById(List<DialogueNode> nodes, string id)
+        {
+            foreach (var node in nodes)
+                if (node.entity.id == id)
+                    return node;
+
+            return null;
+        }
+
+        public List<DialogueEntity> FindConnectedDialogues(DialogueEntity dialogue)
+        {
+            List<DialogueEntity> dialogues = new List<DialogueEntity>();
+
+            dialogues.Add(dialogue);
+
+            foreach (var item in CurrentTree.dialogue_relations.data) {
+                if (item.Key == dialogue.id) {
+                    FindConnectedDialogues(FindById(nodes, item.Value).entity).ForEach(childDialogue => {
+                        dialogues.Add(childDialogue);
+                    });
+                }
+            }
+
+            foreach (var option in dialogue.options) {
+                if (CurrentTree.IsOptionExtended(option)) {
+                    FindConnectedDialogues(FindById(nodes, CurrentTree.option_relations.data[option.id]).entity).ForEach(childDialogue => {
+                        dialogues.Add(childDialogue);
+                    });
+                }
+            }
+
+            return dialogues;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using DialogueSmith.Managers;
 using DialogueSmith.Runtime;
 using UnityEngine;
 using UnityEngine.UI;

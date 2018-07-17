@@ -1,7 +1,4 @@
-﻿using UnityEditor;
-using UnityEngine;
-
-namespace DialogueSmith
+﻿namespace DialogueSmith
 {
     public class Singleton<T> where T : class, new()
     {

@@ -3,7 +3,6 @@ using System.Linq;
 using DialogueSmith.Entities;
 using UnityEditor;
 using UnityEngine;
-using DialogueSmith.Managers;
 using System.Collections.Generic;
 
 namespace DialogueSmith.Editors.Node

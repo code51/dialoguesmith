@@ -3,7 +3,6 @@ using DialogueSmith.Entities;
 using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
-using DialogueSmith.Managers;
 
 namespace DialogueSmith.Editors.Node
 {
@@ -34,7 +33,7 @@ namespace DialogueSmith.Editors.Node
         {
             this.actions.Add(rect, action);
 
-            GUI.DrawTexture(rect, FileManager.Instance.LoadTexture(texture));
+            GUI.DrawTexture(rect, TextureLoader.Instance.LoadTexture(texture));
         }
 
         public void ClickedUpdate(Vector2 mousePosition)

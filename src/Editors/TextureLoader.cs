@@ -1,11 +1,10 @@
-﻿using DialogueSmith.Editors;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace DialogueSmith.Managers
+namespace DialogueSmith.Editors
 {
-    public class FileManager : Singleton<FileManager>
+    public class TextureLoader : Singleton<TextureLoader>
     {
         protected Dictionary<string, Texture> textureCache = new Dictionary<string, Texture>();
 

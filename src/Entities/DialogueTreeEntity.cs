@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using DialogueSmith.Editors.Node;
-using UnityEngine;
 
 namespace DialogueSmith.Entities
 {
@@ -11,7 +9,6 @@ namespace DialogueSmith.Entities
     {
         public string name;
         public WindowEntity window = new WindowEntity();
-        //public DialogueEntity initial_dialogue { get { return dialogue} }
         public string initial_dialogue_id;
         public List<DialogueEntity> dialogues;
         public RelationDictionary dialogue_relations = new RelationDictionary();
@@ -23,7 +20,6 @@ namespace DialogueSmith.Entities
         public void SetInitialDialogue(DialogueEntity dialogue)
         {
             this.initial_dialogue_id = dialogue.id;
-            //initial_dialogue = dialogue;
         }
 
         public void RelateDialogue(string origin, string destination)
@@ -126,40 +122,6 @@ namespace DialogueSmith.Entities
         public void RelateOption(string optionId, string dialogueId)
         {
             option_relations.data[optionId] = dialogueId;
-        }
-
-        protected DialogueNode FindById(List<DialogueNode> nodes, string id)
-        {
-            foreach (var node in nodes)
-                if (node.entity.id == id)
-                    return node;
-
-            return null;
-        }
-
-        public List<DialogueEntity> FindConnectedDialogues(DialogueEntity dialogue, List<DialogueNode> nodes)
-        {
-            List<DialogueEntity> dialogues = new List<DialogueEntity>();
-
-            dialogues.Add(dialogue);
-
-            foreach (var item in dialogue_relations.data) {
-                if (item.Key == dialogue.id) {
-                    FindConnectedDialogues(FindById(nodes, item.Value).entity, nodes).ForEach(childDialogue => {
-                        dialogues.Add(childDialogue);
-                    });
-                }
-            }
-
-            foreach (var option in dialogue.options) {
-                if (IsOptionExtended(option)) {
-                    FindConnectedDialogues(FindById(nodes, option_relations.data[option.id]).entity, nodes).ForEach(childDialogue => {
-                        dialogues.Add(childDialogue);
-                    });
-                }
-            }
-
-            return dialogues;
         }
 
         public void ClearOutboundConnection(string id)

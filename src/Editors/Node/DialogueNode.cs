@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using DialogueSmith.Entities;
 using DialogueSmith.Helper;
-using DialogueSmith.Managers;
 using UnityEditor;
 using UnityEngine;
 
@@ -125,15 +124,15 @@ namespace DialogueSmith.Editors.Node
             options = new List<KeyValuePair<Rect, OptionEntity>>();
 
             if (!editor.CurrentTree.IsConnected(entity))
-                GUI.DrawTexture(startRect = new Rect(4f, heightOffset, 10f, 10f), FileManager.Instance.LoadTexture("redlight.png"));
+                GUI.DrawTexture(startRect = new Rect(4f, heightOffset, 10f, 10f), TextureLoader.Instance.LoadTexture("redlight.png"));
             else
-                GUI.DrawTexture(startRect = new Rect(4f, heightOffset, 10f, 10f), FileManager.Instance.LoadTexture("bluelight.png"));
+                GUI.DrawTexture(startRect = new Rect(4f, heightOffset, 10f, 10f), TextureLoader.Instance.LoadTexture("bluelight.png"));
 
             if (entity.options.Count == 0) {
                 if (!editor.CurrentTree.IsExtended(entity))
-                    GUI.DrawTexture(endRect = new Rect(200f, heightOffset, 10f, 10f), FileManager.Instance.LoadTexture("greenlight.png"));
+                    GUI.DrawTexture(endRect = new Rect(200f, heightOffset, 10f, 10f), TextureLoader.Instance.LoadTexture("greenlight.png"));
                 else
-                    GUI.DrawTexture(endRect = new Rect(200f, heightOffset, 10f, 10f), FileManager.Instance.LoadTexture("bluelight.png"));
+                    GUI.DrawTexture(endRect = new Rect(200f, heightOffset, 10f, 10f), TextureLoader.Instance.LoadTexture("bluelight.png"));
             }
 
             if (showId) {
@@ -217,9 +216,9 @@ namespace DialogueSmith.Editors.Node
                 option.id = entity.id + "." + option.id.Split('.')[1];
 
                 if (!editor.CurrentTree.IsOptionExtended(option))
-                    GUI.DrawTexture(rect, FileManager.Instance.LoadTexture("greenlight.png"));
+                    GUI.DrawTexture(rect, TextureLoader.Instance.LoadTexture("greenlight.png"));
                 else
-                    GUI.DrawTexture(rect, FileManager.Instance.LoadTexture("bluelight.png"));
+                    GUI.DrawTexture(rect, TextureLoader.Instance.LoadTexture("bluelight.png"));
 
                 //if (!editor.CurrentTree.IsOptionExtended(option))
                     AddAction(new Rect(185f, height, 10f, 10f), "cross.png", () => {

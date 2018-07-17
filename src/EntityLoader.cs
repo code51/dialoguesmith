@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using DialogueSmith.Entities;
 using UnityEngine;
-using UnityEditor;
 
 namespace DialogueSmith
 {
