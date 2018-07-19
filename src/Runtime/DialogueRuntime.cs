@@ -7,14 +7,17 @@ namespace DialogueSmith.Runtime
 {
     public class DialogueRuntime
     {
-        public bool IsRunning { get { return currentDialogue != null; } }
+        public bool IsRunning { get { return currentDialogue != null && pauseHandle != null; } }
         public DialogueTreeEntity Tree { get { return dialogueTree; } }
+        public CurrentDialogue Current { get { return currentDialogue; } }
 
         protected DialogueTreeEntity dialogueTree;
         protected Dictionary<string, string> variables;
         protected Random random;
         protected CurrentDialogue currentDialogue;
         protected ListenerRegistry listenerRegistry;
+        protected Action pauseHandle;
+        protected Func<DialogueRuntime> continueHandle;
 
         public DialogueRuntime(DialogueTreeEntity dialogueTree,
             Dictionary<string, string> variables,
@@ -52,12 +55,12 @@ namespace DialogueSmith.Runtime
             CurrentDialogue currentDialogue = new CurrentDialogue(dialogueTree, dialogue, texts, variables);
 
             listenerRegistry.DialogueGeneralListeners["on_initialization"].ForEach(action => {
-                action(currentDialogue);
+                action(this, currentDialogue);
             });
 
             if (listenerRegistry.DialogueSpecificListeners["on_initialization"].ContainsKey(dialogue.id)) {
                 listenerRegistry.DialogueSpecificListeners["on_initialization"][dialogue.id].ForEach(action => {
-                    action(currentDialogue);
+                    action(this, currentDialogue);
                 });
             }
 
@@ -68,15 +71,33 @@ namespace DialogueSmith.Runtime
             return;
         }
 
+        public DialogueRuntime Pause(Action pauseAction)
+        {
+            this.pauseHandle = pauseAction;
+
+            return this;
+        }
+
+        public DialogueRuntime UnPause()
+        {
+            this.pauseHandle = null;
+
+            listenerRegistry.PausingListeners["on_unpause"].ForEach(action => {
+                action(this);
+            });
+
+            return continueHandle();
+        }
+
         protected void DialogueReadyListenersCall(DialogueEntity dialogue)
         {
             listenerRegistry.DialogueGeneralListeners["on_ready"].ForEach(action => {
-                action(currentDialogue);
+                action(this, currentDialogue);
             });
 
             if (listenerRegistry.DialogueSpecificListeners["on_ready"].ContainsKey(dialogue.id)) {
                 listenerRegistry.DialogueSpecificListeners["on_ready"][dialogue.id].ForEach(action => {
-                    action(currentDialogue);
+                    action(this, currentDialogue);
                 });
             }
         }
@@ -96,21 +117,40 @@ namespace DialogueSmith.Runtime
                 throw new InvalidChoiceException();
 
             listenerRegistry.DialogueGeneralListeners["on_continued"].ForEach(action => {
-                action(currentDialogue);
+                action(this, currentDialogue);
             });
 
             if (listenerRegistry.DialogueSpecificListeners["on_continued"].ContainsKey(currentDialogue.Id))
                 listenerRegistry.DialogueSpecificListeners["on_continued"][currentDialogue.Id].ForEach(action => {
-                    action(currentDialogue);
+                    action(this, currentDialogue);
                 });
 
-            if (!dialogueTree.IsExtended(currentDialogue.Origin)) {
-                return End();
+            return ContinueHandling(() => {
+                if (!dialogueTree.IsExtended(currentDialogue.Origin)) {
+                    return End();
+                }
+
+                InitializeDialogue(dialogueTree.GetDialogue(dialogueTree.dialogue_relations.data[currentDialogue.Id]));
+
+                return this;
+            });
+        }
+
+        protected DialogueRuntime ContinueHandling(Func<DialogueRuntime> continueHandle)
+        {
+            if (pauseHandle != null) {
+                listenerRegistry.PausingListeners["on_pause"].ForEach(action => {
+                    action(this);
+                });
+
+                this.continueHandle = continueHandle;
+
+                pauseHandle();
+
+                return this;
+            } else {
+                return continueHandle();
             }
-
-            InitializeDialogue(dialogueTree.GetDialogue(dialogueTree.dialogue_relations.data[currentDialogue.Id]));
-
-            return this;
         }
 
         /// <summary>
@@ -127,30 +167,32 @@ namespace DialogueSmith.Runtime
 
             if (listenerRegistry.DialogueOptionSelectionListeners.ContainsKey(currentDialogue.Id)) {
                 listenerRegistry.DialogueOptionSelectionListeners[currentDialogue.Id].ForEach(action => {
-                    action(currentDialogue, selection);
+                    action(this, currentDialogue, selection);
                 });
             }
 
             if (listenerRegistry.KnownOptionSelectionListeners.ContainsKey(selection.Option.id)) {
                 listenerRegistry.KnownOptionSelectionListeners[selection.Option.id].ForEach(action => {
-                    action(currentDialogue, selection);
+                    action(this, currentDialogue, selection);
                 });
             }
 
             listenerRegistry.GeneralOptionSelectionListeners.ForEach(action => {
-                action(currentDialogue, selection);
+                action(this, currentDialogue, selection);
             });
 
-            if (!dialogueTree.option_relations.data.ContainsKey(selection.Option.id)) {
-                return End();
-            }
+            return ContinueHandling(() => {
+                if (!dialogueTree.option_relations.data.ContainsKey(selection.Option.id)) {
+                    return End();
+                }
 
-            InitializeDialogue(dialogueTree.GetDialogue(dialogueTree.option_relations.data[selection.Option.id]));
+                InitializeDialogue(dialogueTree.GetDialogue(dialogueTree.option_relations.data[selection.Option.id]));
 
-            return this;
+                return this;
+            });
         }
 
-        protected DialogueRuntime End()
+        public DialogueRuntime End()
         {
             currentDialogue = null;
 

@@ -8,7 +8,6 @@ namespace DialogueSmith.Runtime
     public class RuntimeBuilder : AbstractRuntimeBuilder<RuntimeBuilder>
     {
         protected override RuntimeBuilder Instance { get { return this; } }
-
         protected DialogueTreeEntity dialogueTree;
 
         public RuntimeBuilder(DialogueTreeEntity dialogueTree, Random random) : base(random)
@@ -30,10 +29,10 @@ namespace DialogueSmith.Runtime
         /// <param name="dialogueId"></param>
         /// <param name="callback"></param>
         /// <returns></returns>
-        public RuntimeBuilder OnDialogueContinued(string dialogueId, Action<CurrentDialogue> callback)
+        public RuntimeBuilder OnDialogueContinuing(string dialogueId, Action<DialogueRuntime, CurrentDialogue> callback)
         {
             if (!listenerRegistry.DialogueSpecificListeners["on_continued"].ContainsKey(dialogueId))
-                listenerRegistry.DialogueSpecificListeners["on_continued"][dialogueId] = new List<Action<CurrentDialogue>>();
+                listenerRegistry.DialogueSpecificListeners["on_continued"][dialogueId] = new List<Action<DialogueRuntime, CurrentDialogue>>();
 
             listenerRegistry.DialogueSpecificListeners["on_continued"][dialogueId].Add(callback);
 
@@ -47,10 +46,10 @@ namespace DialogueSmith.Runtime
         /// <param name="dialogueId"></param>
         /// <param name="callback"></param>
         /// <returns></returns>
-        public RuntimeBuilder OnDialogueInitialization(string dialogueId, Action<CurrentDialogue> callback)
+        public RuntimeBuilder OnDialogueInitialization(string dialogueId, Action<DialogueRuntime, CurrentDialogue> callback)
         {
             if (!listenerRegistry.DialogueSpecificListeners["on_initialization"].ContainsKey(dialogueId))
-                listenerRegistry.DialogueSpecificListeners["on_initialization"][dialogueId] = new List<Action<CurrentDialogue>>();
+                listenerRegistry.DialogueSpecificListeners["on_initialization"][dialogueId] = new List<Action<DialogueRuntime, CurrentDialogue>>();
 
             listenerRegistry.DialogueSpecificListeners["on_initialization"][dialogueId].Add(callback);
 
@@ -64,10 +63,10 @@ namespace DialogueSmith.Runtime
         /// <param name="dialogueId"></param>
         /// <param name="callback"></param>
         /// <returns></returns>
-        public RuntimeBuilder OnDialogueReady(string dialogueId, Action<CurrentDialogue> callback)
+        public RuntimeBuilder OnDialogueReady(string dialogueId, Action<DialogueRuntime, CurrentDialogue> callback)
         {
             if (!listenerRegistry.DialogueSpecificListeners["on_ready"].ContainsKey(dialogueId))
-                listenerRegistry.DialogueSpecificListeners["on_ready"][dialogueId] = new List<Action<CurrentDialogue>>();
+                listenerRegistry.DialogueSpecificListeners["on_ready"][dialogueId] = new List<Action<DialogueRuntime, CurrentDialogue>>();
 
             listenerRegistry.DialogueSpecificListeners["on_ready"][dialogueId].Add(callback);
 
@@ -80,10 +79,10 @@ namespace DialogueSmith.Runtime
         /// <param name="dialogueId"></param>
         /// <param name="callback"></param>
         /// <returns></returns>
-        public RuntimeBuilder OnOptionSelected(string dialogueId, Action<CurrentDialogue, OptionSelection> callback)
+        public RuntimeBuilder OnOptionContinuing(string dialogueId, Action<DialogueRuntime, CurrentDialogue, OptionSelection> callback)
         {
             if (!listenerRegistry.DialogueOptionSelectionListeners.ContainsKey(dialogueId))
-                listenerRegistry.DialogueOptionSelectionListeners[dialogueId] = new List<Action<CurrentDialogue, OptionSelection>>();
+                listenerRegistry.DialogueOptionSelectionListeners[dialogueId] = new List<Action<DialogueRuntime, CurrentDialogue, OptionSelection>>();
 
             listenerRegistry.DialogueOptionSelectionListeners[dialogueId].Add(callback);
 
@@ -97,12 +96,12 @@ namespace DialogueSmith.Runtime
         /// <param name="optionId"></param>
         /// <param name="callback"></param>
         /// <returns></returns>
-        public RuntimeBuilder OnOptionSelected(string dialogueId, int optionIndex, Action<CurrentDialogue, OptionSelection> callback)
+        public RuntimeBuilder OnOptionContinuing(string dialogueId, int optionNo, Action<DialogueRuntime, CurrentDialogue, OptionSelection> callback)
         {
-            OptionEntity option = dialogueTree.GetDialogue(dialogueId).options[optionIndex];
+            OptionEntity option = dialogueTree.GetDialogue(dialogueId).options[optionNo - 1];
 
             if (!listenerRegistry.KnownOptionSelectionListeners.ContainsKey(option.id))
-                listenerRegistry.KnownOptionSelectionListeners[option.id] = new List<Action<CurrentDialogue, OptionSelection>>();
+                listenerRegistry.KnownOptionSelectionListeners[option.id] = new List<Action<DialogueRuntime, CurrentDialogue, OptionSelection>>();
 
             listenerRegistry.KnownOptionSelectionListeners[option.id].Add(callback);
 

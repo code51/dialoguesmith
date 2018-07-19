@@ -33,14 +33,28 @@ namespace DialogueSmith.Runtime
             return Instance;
         }
 
+        public Builder OnPause(Action<DialogueRuntime> callback)
+        {
+            listenerRegistry.PausingListeners["on_pause"].Add(callback);
+
+            return Instance;
+        }
+
+        public Builder OnUnPause(Action<DialogueRuntime> callback)
+        {
+            listenerRegistry.PausingListeners["on_unpause"].Add(callback);
+
+            return Instance;
+        }
+
         /// <summary>
         /// On every dialogue continued
         /// </summary>
-        /// <param name="dialogue"></param>
+        /// <param name="callback"></param>
         /// <returns></returns>
-        public Builder OnDialogueContinued(Action<CurrentDialogue> dialogue)
+        public Builder OnDialogueContinuing(Action<DialogueRuntime, CurrentDialogue> callback)
         {
-            listenerRegistry.DialogueGeneralListeners["on_continued"].Add(dialogue);
+            listenerRegistry.DialogueGeneralListeners["on_continued"].Add(callback);
 
             return Instance;
         }
@@ -51,7 +65,7 @@ namespace DialogueSmith.Runtime
         /// </summary>
         /// <param name="dialogue"></param>
         /// <returns></returns>
-        public Builder OnDialogueInitialization(Action<CurrentDialogue> dialogue)
+        public Builder OnDialogueInitialization(Action<DialogueRuntime, CurrentDialogue> dialogue)
         {
             listenerRegistry.DialogueGeneralListeners["on_initialization"].Add(dialogue);
 
@@ -65,7 +79,7 @@ namespace DialogueSmith.Runtime
         /// </summary>
         /// <param name="dialogue"></param>
         /// <returns></returns>
-        public Builder OnDialogueReady(Action<CurrentDialogue> dialogue)
+        public Builder OnDialogueReady(Action<DialogueRuntime, CurrentDialogue> dialogue)
         {
             listenerRegistry.DialogueGeneralListeners["on_ready"].Add(dialogue);
 
@@ -77,7 +91,7 @@ namespace DialogueSmith.Runtime
         /// </summary>
         /// <param name="callback"></param>
         /// <returns></returns>
-        public Builder OnOptionSelected(Action<CurrentDialogue, OptionSelection> callback)
+        public Builder OnOptionContinuing(Action<DialogueRuntime, CurrentDialogue, OptionSelection> callback)
         {
             listenerRegistry.GeneralOptionSelectionListeners.Add(callback);
 

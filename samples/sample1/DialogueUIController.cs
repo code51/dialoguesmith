@@ -29,7 +29,7 @@ public class DialogueUIController : MonoBehaviour
                 .OnDialogueTreeBegin(DialogueTreeBegin)
                 .OnDialogueTreeFinished(DialogueTreeFinished)
                 .OnDialogueReady(DialogueUIUpdate)
-                .OnOptionSelected(DialogueOptionSelected)
+                .OnOptionContinuing(DialogueOptionSelected)
                 .SetVariables(new Dictionary<string, string>() {
                     { "title", "captain" },
                     { "gold", "100f" }
@@ -54,7 +54,7 @@ public class DialogueUIController : MonoBehaviour
         }
     }
 
-    protected void DialogueOptionSelected(CurrentDialogue dialogue, OptionSelection selection)
+    protected void DialogueOptionSelected(DialogueRuntime runtime, CurrentDialogue dialogue, OptionSelection selection)
     {
         for (int i = 0; i < selectionsContainer.childCount; i++) {
             if (selectionsContainer.GetChild(i).name == "row_selection")
@@ -74,7 +74,7 @@ public class DialogueUIController : MonoBehaviour
         this.runtime = null;
     }
 
-    protected void DialogueUIUpdate(CurrentDialogue dialogue)
+    protected void DialogueUIUpdate(DialogueRuntime runtime, CurrentDialogue dialogue)
     {
         text.text = dialogue.Text;
 

@@ -67,9 +67,10 @@ namespace DialogueSmith.Runtime
         protected ListenerRegistry CloneListenerRegistry()
         {
             return new ListenerRegistry() {
-                DialogueGeneralListeners = new Dictionary<string, List<Action<CurrentDialogue>>>(listenerRegistry.DialogueGeneralListeners),
+                DialogueGeneralListeners = new Dictionary<string, List<Action<DialogueRuntime, CurrentDialogue>>>(listenerRegistry.DialogueGeneralListeners),
                 DialogueTreeListeners = new Dictionary<string, List<Action<DialogueRuntime>>>(listenerRegistry.DialogueTreeListeners),
-                GeneralOptionSelectionListeners = new List<Action<CurrentDialogue, OptionSelection>>(listenerRegistry.GeneralOptionSelectionListeners),
+                GeneralOptionSelectionListeners = new List<Action<DialogueRuntime, CurrentDialogue, OptionSelection>>(listenerRegistry.GeneralOptionSelectionListeners),
+                PausingListeners = new Dictionary<string, List<Action<DialogueRuntime>>>(listenerRegistry.PausingListeners)
             };
         }
 
