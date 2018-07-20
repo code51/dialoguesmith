@@ -82,7 +82,7 @@ namespace DialogueSmith.Runtime
         {
             this.pauseHandle = null;
 
-            listenerRegistry.PausingListeners["on_unpause"].ForEach(action => {
+            listenerRegistry.PausingListeners["on_unpaused"].ForEach(action => {
                 action(this);
             });
 
@@ -139,7 +139,7 @@ namespace DialogueSmith.Runtime
         protected DialogueRuntime ContinueHandling(Func<DialogueRuntime> continueHandle)
         {
             if (pauseHandle != null) {
-                listenerRegistry.PausingListeners["on_pause"].ForEach(action => {
+                listenerRegistry.PausingListeners["on_paused"].ForEach(action => {
                     action(this);
                 });
 

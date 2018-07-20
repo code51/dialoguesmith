@@ -33,16 +33,16 @@ namespace DialogueSmith.Runtime
             return Instance;
         }
 
-        public Builder OnPause(Action<DialogueRuntime> callback)
+        public Builder OnPaused(Action<DialogueRuntime> callback)
         {
-            listenerRegistry.PausingListeners["on_pause"].Add(callback);
+            listenerRegistry.PausingListeners["on_paused"].Add(callback);
 
             return Instance;
         }
 
-        public Builder OnUnPause(Action<DialogueRuntime> callback)
+        public Builder OnUnpaused(Action<DialogueRuntime> callback)
         {
-            listenerRegistry.PausingListeners["on_unpause"].Add(callback);
+            listenerRegistry.PausingListeners["on_unpaused"].Add(callback);
 
             return Instance;
         }
