@@ -44,7 +44,7 @@ RuntimeFactory factory = new RuntimeFactory(new Random());
 ```
 
 #### with entity loader
-An entity loader helps you locate your dialogues by it's string name, instead of TextAsset. The dialogues directory have to be placed inside your resources folder.
+An entity loader helps you locate your dialogue tree by it's string name, instead of TextAsset. The dialogues directory have to be placed inside your resources folder.
 ```c#
 RuntimeFactory factory = new RuntimeFactory(new EntityLoader("dialogues"), new Random());
 ```
@@ -59,14 +59,20 @@ called when the runtime/dialogue tree has finished.
 #### OnDialogueInitializing()
 called when a dialogue is initializing. can be used to apply dialogue specific variables, filters and so on.
 
-#### OnDialogueInitialized()
+#### OnDialogueReady()
 called when a dialogue has been initialized. Can be used to draw the UI update.
 
-#### OnDialogueContinued()
-called when a dialogue without selections is continued. and before the next dialogue is initialized. for selection based continue event, use ```OnOptionSelected()```
+#### OnDialogueContinuing()
+called when a dialogue without selections is continuing. and just before the initialization the next dialogue. for selection based continue event, use ```OnOptionContinuing()```
 
-#### OnOptionSelected()
+#### OnOptionContinuing()
 called when an option has been selected. 
+
+#### OnPaused()
+When dialogue is paused. Can be used for UI preparation.
+
+#### OnUnpaused()
+When dialogue is unpaused
 
 ### example usages
 #### registry
@@ -83,6 +89,12 @@ An object that is being used to maintain the state of the dialogue tree in game.
 #### Continue()
 used to proceed the dialogue. there're two overrides available for this method. one without argument, second with the argument that requires OptionSelection object. 
 The dialogue tree ends, when there's no longer dialogue available next.
+
+#### Pause()
+Pause the runtime. Can be used to do other things while in the middle of a dialogue.
+
+#### Unpause()
+Unpause and continue the runtime
 
 ### Usage
 create the runtime, with the first dialogue initialization.
