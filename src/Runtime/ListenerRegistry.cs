@@ -28,8 +28,8 @@ namespace DialogueSmith.Runtime
         public Dictionary<string, List<Action<DialogueRuntime, CurrentDialogue, OptionSelection>>> KnownOptionSelectionListeners = new Dictionary<string, List<Action<DialogueRuntime, CurrentDialogue, OptionSelection>>>();
 
         public Dictionary<string, List<Action<DialogueRuntime>>> PausingListeners = new Dictionary<string, List<Action<DialogueRuntime>>>() {
-            { "on_pause", new List<Action<DialogueRuntime>>() },
-            { "on_unpause", new List<Action<DialogueRuntime>>() }
+            { "on_paused", new List<Action<DialogueRuntime>>() },
+            { "on_unpaused", new List<Action<DialogueRuntime>>() }
         };
     }
 }
