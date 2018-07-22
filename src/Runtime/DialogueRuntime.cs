@@ -80,6 +80,9 @@ namespace DialogueSmith.Runtime
 
         public DialogueRuntime UnPause()
         {
+            if (pauseHandle == null)
+                return this;
+
             this.pauseHandle = null;
 
             listenerRegistry.PausingListeners["on_unpaused"].ForEach(action => {
