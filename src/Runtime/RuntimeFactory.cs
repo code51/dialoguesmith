@@ -16,7 +16,7 @@ namespace DialogueSmith.Runtime
             this.variables = new Dictionary<string, string>();
         }
 
-        public RuntimeFactory(IEntityLoader entityLoader, System.Random random) : base(new System.Random())
+        public RuntimeFactory(IEntityLoader entityLoader, System.Random random) : base(random)
         {
             this.entityLoader = entityLoader;
             this.variables = new Dictionary<string, string>();
